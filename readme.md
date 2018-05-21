@@ -1,3 +1,9 @@
+# Craft Demo
+* Fork, build, run this github repo.
+* Create a webservice endpoint to return a list of pets given an ownerId
+* Visit currently is not associated with a vet.  Add an association between visit and vet (a visit maps to a vet). Create a new webservice endpoint that returns all pets that has visited a vet
+
+
 # REST version of Spring PetClinic Sample Application (spring-framework-petclinic extend ) [![Build Status](https://travis-ci.org/spring-petclinic/spring-petclinic-rest.png?branch=master)](https://travis-ci.org/spring-petclinic/spring-petclinic-rest/)
 
 This backend version of the Spring Petclinic application only provides a REST API. **There is no UI**.
