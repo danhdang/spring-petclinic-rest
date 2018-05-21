@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -119,4 +120,9 @@ public class Pet extends NamedEntity {
         visit.setPet(this);
     }
 
+    public void addVisits(Collection<Visit> visits) {
+        for (Visit visit: visits) {
+            addVisit(visit);
+        }
+    }
 }

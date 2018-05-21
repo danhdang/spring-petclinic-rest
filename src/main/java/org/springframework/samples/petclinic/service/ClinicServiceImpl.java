@@ -67,7 +67,7 @@ public class ClinicServiceImpl implements ClinicService {
         this.vetRepository = vetRepository;
         this.ownerRepository = ownerRepository;
         this.visitRepository = visitRepository;
-        this.specialtyRepository = specialtyRepository; 
+        this.specialtyRepository = specialtyRepository;
 		this.petTypeRepository = petTypeRepository;
     }
 
@@ -165,6 +165,12 @@ public class ClinicServiceImpl implements ClinicService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
+    public Collection<Pet> findPetsVisitedByVetId(int vetId) {
+        return petRepository.findPetsVistedByVetId(vetId);
+    }
+
+	@Override
 	@Transactional(readOnly = true)
 	public Collection<PetType> findAllPetTypes() throws DataAccessException {
 		return petTypeRepository.findAll();
@@ -182,7 +188,7 @@ public class ClinicServiceImpl implements ClinicService {
 		petTypeRepository.delete(petType);
 	}
 
-	@Override
+    @Override
 	@Transactional(readOnly = true)
 	public Specialty findSpecialtyById(int specialtyId) {
 		Specialty specialty = null;

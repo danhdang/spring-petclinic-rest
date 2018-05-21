@@ -26,6 +26,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -118,7 +119,16 @@ public class VetRestController {
 		this.clinicService.deleteVet(vet);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
-	
-	
+
+    @RequestMapping(value = "/{vetId}/visits/pets", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Pet>> updateVet(@PathVariable("vetId") int vetId){
+        Vet vet = this.clinicService.findVetById(vetId);
+        if(vet == null){
+            return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+        }
+
+        Collection<Pet> petsVisits = this.clinicService.findPetsVisitedByVetId(vetId);
+        return new ResponseEntity<Collection<Pet>>(petsVisits, HttpStatus.OK);
+    }
 
 }

@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
@@ -63,7 +64,7 @@ public class JpaPetRepositoryImpl implements PetRepository {
             this.em.merge(pet);
         }
     }
-    
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Pet> findAll() throws DataAccessException {
@@ -80,5 +81,14 @@ public class JpaPetRepositoryImpl implements PetRepository {
 			em.remove(pet);
 		}
 	}
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<Pet> findPetsVistedByVetId(int vetId) throws DataAccessException {
+        Query query = this.em.createQuery("SELECT pet FROM Pet pet, Visit visit WHERE visit.vet.id = :vetId AND visit.pet = pet ORDER BY pet.name");
+        query.setParameter("vetId", vetId);
+
+        return query.getResultList();
+    }
 
 }

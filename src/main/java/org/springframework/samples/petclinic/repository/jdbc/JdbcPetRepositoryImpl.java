@@ -126,15 +126,15 @@ public class JdbcPetRepositoryImpl implements PetRepository {
             .addValue("type_id", pet.getType().getId())
             .addValue("owner_id", pet.getOwner().getId());
     }
-    
+
 	@Override
 	public Collection<Pet> findAll() throws DataAccessException {
-		Map<String, Object> params = new HashMap<>();
+
 		Collection<Pet> pets = new ArrayList<Pet>();
 		Collection<JdbcPet> jdbcPets = new ArrayList<JdbcPet>();
 		jdbcPets = this.namedParameterJdbcTemplate
 				.query("SELECT pets.id as pets_id, name, birth_date, type_id, owner_id FROM pets",
-				params,
+                    new HashMap<String, Object>(),
 				new JdbcPetRowMapper());
 		Collection<PetType> petTypes = this.namedParameterJdbcTemplate.query("SELECT id, name FROM types ORDER BY name",
 				new HashMap<String,
@@ -143,12 +143,20 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 				"SELECT id, first_name, last_name, address, city, telephone FROM owners ORDER BY last_name",
 				new HashMap<String, Object>(),
 				BeanPropertyRowMapper.newInstance(Owner.class));
+
 		for (JdbcPet jdbcPet : jdbcPets) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("pet_id", jdbcPet.getId());
 			jdbcPet.setType(EntityUtils.getById(petTypes, PetType.class, jdbcPet.getTypeId()));
 			jdbcPet.setOwner(EntityUtils.getById(owners, Owner.class, jdbcPet.getOwnerId()));
-			// TODO add visits
+			Collection<Visit> visits = this.namedParameterJdbcTemplate.query(
+			    "SELECT id, visit_date, description, pet_id, vet_id FROM visits WHERE pet_id = :pet_id",
+                params,
+                BeanPropertyRowMapper.newInstance(Visit.class));
+			jdbcPet.addVisits(visits);
 			pets.add(jdbcPet);
 		}
+
 		return pets;
 	}
 
@@ -165,5 +173,45 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 		}
 		this.namedParameterJdbcTemplate.update("DELETE FROM pets WHERE id=:id", pet_params);
 	}
+
+    /**
+     * Note: This method and find all share most of the same code and would most likely benefit
+     * from abstracting the fetching of the pets relations. Left as is for brevity.
+     */
+    @Override
+    public Collection<Pet> findPetsVistedByVetId(int vetId) throws DataAccessException {
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("vet_id", vetId);
+        Collection<Pet> pets = new ArrayList<Pet>();
+        Collection<JdbcPet> jdbcPets = new ArrayList<JdbcPet>();
+        jdbcPets = this.namedParameterJdbcTemplate
+            .query( "SELECT pet.id as pets_id, name, pet.birth_date, pet.type_id, pet.owner_id FROM pets pet, visits visit WHERE visit.vet_id = :vet_id AND visit.pet_id = pet.id ORDER BY pet.name",
+                params,
+                new JdbcPetRowMapper());
+        Collection<PetType> petTypes = this.namedParameterJdbcTemplate.query("SELECT id, name FROM types ORDER BY name",
+            new HashMap<String,
+                Object>(), BeanPropertyRowMapper.newInstance(PetType.class));
+        Collection<Owner> owners = this.namedParameterJdbcTemplate.query(
+            "SELECT id, first_name, last_name, address, city, telephone FROM owners ORDER BY last_name",
+            new HashMap<String, Object>(),
+            BeanPropertyRowMapper.newInstance(Owner.class));
+
+        for (JdbcPet jdbcPet : jdbcPets) {
+            Map<String, Object> visit_params = new HashMap<>();
+            visit_params.put("pet_id", jdbcPet.getId());
+            jdbcPet.setType(EntityUtils.getById(petTypes, PetType.class, jdbcPet.getTypeId()));
+            jdbcPet.setOwner(EntityUtils.getById(owners, Owner.class, jdbcPet.getOwnerId()));
+            Collection<Visit> visits = this.namedParameterJdbcTemplate.query(
+                "SELECT id, visit_date, description, pet_id, vet_id FROM visits WHERE pet_id = :pet_id",
+                visit_params,
+                BeanPropertyRowMapper.newInstance(Visit.class));
+            jdbcPet.addVisits(visits);
+            pets.add(jdbcPet);
+        }
+
+        return pets;
+
+    }
 
 }
