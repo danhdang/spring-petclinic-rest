@@ -186,12 +186,15 @@ public abstract class AbstractClinicServiceTests {
     @Transactional
     public void shouldAddNewVisitForPet() {
         Pet pet7 = this.clinicService.findPetById(7);
+        Vet vet3 = this.clinicService.findVetById(3);
         int found = pet7.getVisits().size();
         Visit visit = new Visit();
         pet7.addVisit(visit);
+        vet3.addVisit(visit);
         visit.setDescription("test");
         this.clinicService.saveVisit(visit);
         this.clinicService.savePet(pet7);
+        this.clinicService.saveVet(vet3);
 
         pet7 = this.clinicService.findPetById(7);
         assertThat(pet7.getVisits().size()).isEqualTo(found + 1);
@@ -216,27 +219,52 @@ public abstract class AbstractClinicServiceTests {
         Pet pet3 = EntityUtils.getById(pets, Pet.class, 3);
         assertThat(pet3.getName()).isEqualTo("Rosy");
     }
-    
+
+    @Test
+    public void shouldFindPetVistedByVet() {
+        Collection<Pet> pets = this.clinicService.findPetsVisitedByVetId(4);
+        Pet pet1 = EntityUtils.getById(pets, Pet.class, 7);
+        assertThat(pet1.getName()).isEqualTo("Samantha");
+        Pet pet3 = EntityUtils.getById(pets, Pet.class, 8);
+        assertThat(pet3.getName()).isEqualTo("Max");
+    }
+
     @Test
     @Transactional
     public void shouldDeletePet(){
         Pet pet = this.clinicService.findPetById(1);
         this.clinicService.deletePet(pet);
         try {
-        pet = this.clinicService.findPetById(1);
+            pet = this.clinicService.findPetById(1);
 		} catch (Exception e) {
 			pet = null;
 		}
         assertThat(pet).isNull();
     }
-    
+
+    @Test
+    @Transactional
+    public void shouldDeletePetWithVisits(){
+        Pet pet = this.clinicService.findPetById(7);
+        int visitCount = pet.getVisits().size();
+        this.clinicService.deletePet(pet);
+        try {
+            pet = this.clinicService.findPetById(7);
+        } catch (Exception e) {
+            pet = null;
+        }
+
+        assertThat(visitCount).isGreaterThan(0);
+        assertThat(pet).isNull();
+    }
+
     @Test
     public void shouldFindVisitDyId(){
     	Visit visit = this.clinicService.findVisitById(1);
     	assertThat(visit.getId()).isEqualTo(1);
     	assertThat(visit.getPet().getName()).isEqualTo("Samantha");
     }
-    
+
     @Test
     public void shouldFindAllVisits(){
         Collection<Visit> visits = this.clinicService.findAllVisits();
@@ -245,21 +273,23 @@ public abstract class AbstractClinicServiceTests {
         Visit visit3 = EntityUtils.getById(visits, Visit.class, 3);
         assertThat(visit3.getPet().getName()).isEqualTo("Max");
     }
-    
+
     @Test
     @Transactional
     public void shouldInsertVisit() {
         Collection<Visit> visits = this.clinicService.findAllVisits();
         int found = visits.size();
-        
+
         Pet pet = this.clinicService.findPetById(1);
+        Vet vet = this.clinicService.findVetById(3);
 
         Visit visit = new Visit();
         visit.setPet(pet);
+        visit.setVet(vet);
         visit.setDate(new Date());
         visit.setDescription("new visit");
-        
-                
+
+
         this.clinicService.saveVisit(visit);
         assertThat(visit.getId().longValue()).isNotEqualTo(0);
 
@@ -308,7 +338,7 @@ public abstract class AbstractClinicServiceTests {
         Vet vet = new Vet();
         vet.setFirstName("John");
         vet.setLastName("Dow");
-                
+        
         this.clinicService.saveVet(vet);
         assertThat(vet.getId().longValue()).isNotEqualTo(0);
 
@@ -340,7 +370,20 @@ public abstract class AbstractClinicServiceTests {
 		}
         assertThat(vet).isNull();
     }
-    
+
+    @Test
+    @Transactional
+    public void shouldDeleteVetWithVisit(){
+        Vet vet = this.clinicService.findVetById(4);
+        this.clinicService.deleteVet(vet);
+        try {
+            vet = this.clinicService.findVetById(4);
+        } catch (Exception e) {
+            vet = null;
+        }
+        assertThat(vet).isNull();
+    }
+
     @Test
     public void shouldFindAllOwners(){
         Collection<Owner> owners = this.clinicService.findAllOwners();
@@ -474,7 +517,7 @@ public abstract class AbstractClinicServiceTests {
 		}
         assertThat(specialty).isNull();
     }
-       
+    
 
 
 }

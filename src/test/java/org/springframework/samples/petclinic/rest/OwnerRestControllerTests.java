@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -36,6 +37,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.test.context.ContextConfiguration;
@@ -82,6 +85,20 @@ public class OwnerRestControllerTests {
     	owner.setAddress("110 W. Liberty St.");
     	owner.setCity("Madison");
     	owner.setTelephone("6085551023");
+
+        PetType petType = new PetType();
+        petType.setId(2);
+        petType.setName("dog");
+
+        Pet pet = new Pet();
+        pet.setId(3);
+        pet.setName("Rosy");
+        pet.setBirthDate(new Date());
+        pet.setOwner(owner);
+        pet.setType(petType);
+
+        owner.addPet(pet);
+
     	owners.add(owner);
 
     	owner = new Owner();
@@ -182,6 +199,36 @@ public class OwnerRestControllerTests {
     }
 
     @Test
+    public void testGetOwnersPetsListSuccess() throws Exception {
+        given(this.clinicService.findOwnerById(1)).willReturn(owners.get(0));
+        this.mockMvc.perform(get("/api/owners/1/pets")
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(3))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"));
+    }
+
+    @Test
+    public void testGetOwnersPetsListEmptySuccess() throws Exception {
+        given(this.clinicService.findOwnerById(2)).willReturn(owners.get(1));
+        this.mockMvc.perform(get("/api/owners/2/pets")
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    public void testGetOwnersPetsListError() throws Exception {
+        given(this.clinicService.findOwnerById(-1)).willReturn(null);
+        this.mockMvc.perform(get("/api/owners/-1/pets")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     public void testCreateOwnerSuccess() throws Exception {
     	Owner newOwner = owners.get(0);
     	newOwner.setId(999);
@@ -194,7 +241,7 @@ public class OwnerRestControllerTests {
 
     @Test
     public void testCreateOwnerError() throws Exception {
-    	Owner newOwner = owners.get(0);
+    	Owner newOwner = owners.get(1);
     	newOwner.setId(null);
     	newOwner.setFirstName(null);
     	ObjectMapper mapper = new ObjectMapper();

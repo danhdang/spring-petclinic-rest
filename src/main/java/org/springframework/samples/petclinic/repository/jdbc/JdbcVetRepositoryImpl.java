@@ -37,6 +37,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.VetRepository;
 import org.springframework.samples.petclinic.util.EntityUtils;
 import org.springframework.stereotype.Repository;
@@ -102,7 +103,7 @@ public class JdbcVetRepositoryImpl implements VetRepository {
         }
         return vets;
     }
-    
+
 	@Override
 	public Vet findById(int id) throws DataAccessException {
 		Vet vet;
@@ -126,10 +127,21 @@ public class JdbcVetRepositoryImpl implements VetRepository {
 							return rs.getInt(1);
 						}
 					});
+
 			for (int specialtyId : vetSpecialtiesIds) {
 				Specialty specialty = EntityUtils.getById(specialties, Specialty.class, specialtyId);
 				vet.addSpecialty(specialty);
 			}
+
+			final List<Visit> visits = this.namedParameterJdbcTemplate.query(
+			    "SELECT id as visit_id, visit_date, description FROM visits WHERE vet_id = :id",
+                vet_params,
+                new JdbcVisitRowMapper()
+            );
+
+			for(Visit visit: visits) {
+			    vet.addVisit(visit);
+            }
 
 		} catch (EmptyResultDataAccessException ex) {
 			throw new ObjectRetrievalFailureException(Vet.class, id);
@@ -156,9 +168,19 @@ public class JdbcVetRepositoryImpl implements VetRepository {
 		Map<String, Object> params = new HashMap<>();
 		params.put("id", vet.getId());
 		this.namedParameterJdbcTemplate.update("DELETE FROM vet_specialties WHERE vet_id=:id", params);
+
+		Collection<Visit> visits = vet.getVisits();
+        // cascade delete visits
+        for (Visit visit : visits) {
+            Map<String, Object> visit_params = new HashMap<>();
+            visit_params.put("id", visit.getId());
+            this.namedParameterJdbcTemplate.update("DELETE FROM visits WHERE id=:id", visit_params);
+        }
+
 		this.namedParameterJdbcTemplate.update("DELETE FROM vets WHERE id=:id", params);
+
 	}
-	
+
 	private void updateVetSpecialties(Vet vet) throws DataAccessException {
 		Map<String, Object> params = new HashMap<>();
 		params.put("id", vet.getId());

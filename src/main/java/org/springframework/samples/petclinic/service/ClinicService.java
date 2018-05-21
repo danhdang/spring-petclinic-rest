@@ -62,7 +62,8 @@ public interface ClinicService {
 	Collection<PetType> findPetTypes() throws DataAccessException;
 	void savePetType(PetType petType) throws DataAccessException;
 	void deletePetType(PetType petType) throws DataAccessException;
-	
+    Collection<Pet> findPetsVisitedByVetId(int vetId);
+
 	Specialty findSpecialtyById(int specialtyId);
 	Collection<Specialty> findAllSpecialties() throws DataAccessException;
 	void saveSpecialty(Specialty specialty) throws DataAccessException;

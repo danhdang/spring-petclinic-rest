@@ -27,6 +27,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.repository.VisitRepository;
 import org.springframework.stereotype.Repository;
@@ -79,7 +80,8 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
             .addValue("id", visit.getId())
             .addValue("visit_date", visit.getDate())
             .addValue("description", visit.getDescription())
-            .addValue("pet_id", visit.getPet().getId());
+            .addValue("pet_id", visit.getPet().getId())
+            .addValue("vet_id", visit.getVet().getId());
     }
 
     @Override
@@ -101,7 +103,7 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 
         return visits;
     }
-    
+
 	@Override
 	public Visit findById(int id) throws DataAccessException {
 		Visit visit;
@@ -109,7 +111,7 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 			Map<String, Object> params = new HashMap<>();
 			params.put("id", id);
 			visit = this.namedParameterJdbcTemplate.queryForObject(
-					"SELECT id as visit_id, visits.pet_id as pets_id, visit_date, description FROM visits WHERE id= :id",
+					"SELECT id as visit_id, visits.pet_id as pets_id, vet_id, visit_date, description FROM visits WHERE id= :id",
 					params,
 					new JdbcVisitRowMapperExt());
 		} catch (EmptyResultDataAccessException ex) {
@@ -122,7 +124,7 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 	public Collection<Visit> findAll() throws DataAccessException {
 		Map<String, Object> params = new HashMap<>();
 		return this.namedParameterJdbcTemplate.query(
-				"SELECT id as visit_id, pets.id as pets_id, visit_date, description FROM visits LEFT JOIN pets ON visits.pet_id = pets.id",
+				"SELECT id as visit_id, pets.id as pets_id, vets.id as vet_id, visit_date, description FROM visits LEFT JOIN pets ON visits.pet_id = pets.id LEFT JOIN vets ON visits.vet_id = vets.id",
 				params, new JdbcVisitRowMapperExt());
 	}
 
@@ -153,6 +155,7 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 			JdbcPet pet = new JdbcPet();
 			PetType petType = new PetType();
 			Owner owner = new Owner();
+			Vet vet = new Vet();
 			visit.setId(rs.getInt("visit_id"));
 			Date visitDate = rs.getDate("visit_date");
 			visit.setDate(new Date(visitDate.getTime()));
@@ -176,6 +179,13 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 					BeanPropertyRowMapper.newInstance(Owner.class));
 			pet.setOwner(owner);
 			visit.setPet(pet);
+			params.put("vet_id", rs.getInt("vet_id"));
+			vet = JdbcVisitRepositoryImpl.this.namedParameterJdbcTemplate.queryForObject(
+			    "SELECT id, first_name, last_name FROM vets WHERE id= :vet_id",
+                params,
+                BeanPropertyRowMapper.newInstance(Vet.class));
+			visit.setVet(vet);
+
 			return visit;
 		}
 	}
