@@ -15,7 +15,10 @@
  */
 package org.springframework.samples.petclinic.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -67,7 +70,7 @@ public class ClinicServiceImpl implements ClinicService {
         this.vetRepository = vetRepository;
         this.ownerRepository = ownerRepository;
         this.visitRepository = visitRepository;
-        this.specialtyRepository = specialtyRepository; 
+        this.specialtyRepository = specialtyRepository;
 		this.petTypeRepository = petTypeRepository;
     }
 
@@ -76,6 +79,18 @@ public class ClinicServiceImpl implements ClinicService {
 	public Collection<Pet> findAllPets() throws DataAccessException {
 		return petRepository.findAll();
 	}
+
+	@Override
+    @Transactional(readOnly = true)
+    public Collection<Pet> findPetsThatVisitedVetByVetId(int vetId) throws DataAccessException {
+        Collection<Visit> visits = findVisitsByVetId(vetId);
+        List<Pet> pets = new ArrayList<>();
+        for(Visit visit : visits) {
+            Pet pet = visit.getPet();
+            pets.add(pet);
+        }
+        return pets;
+    }
 
 	@Override
 	@Transactional
@@ -249,14 +264,14 @@ public class ClinicServiceImpl implements ClinicService {
 	@Transactional
 	public void savePet(Pet pet) throws DataAccessException {
 		petRepository.save(pet);
-		
+
 	}
 
 	@Override
 	@Transactional
 	public void saveVisit(Visit visit) throws DataAccessException {
 		visitRepository.save(visit);
-		
+
 	}
 
 	@Override
@@ -270,7 +285,7 @@ public class ClinicServiceImpl implements ClinicService {
 	@Transactional
 	public void saveOwner(Owner owner) throws DataAccessException {
 		ownerRepository.save(owner);
-		
+
 	}
 
 	@Override
@@ -284,8 +299,13 @@ public class ClinicServiceImpl implements ClinicService {
 	public Collection<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);
 	}
-	
-	
+
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<Visit> findVisitsByVetId(int vetId){
+        return visitRepository.findByVetId(vetId);
+    }
+
 
 
 }
