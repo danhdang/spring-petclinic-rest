@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -26,6 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -47,10 +49,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 @CrossOrigin(exposedHeaders = "errors, content-type")
 @RequestMapping("api/vets")
 public class VetRestController {
-	
+
 	@Autowired
 	private ClinicService clinicService;
-	
+
 	@RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Collection<Vet>> getAllVets(){
 		Collection<Vet> vets = new ArrayList<Vet>();
@@ -60,7 +62,7 @@ public class VetRestController {
 		}
 		return new ResponseEntity<Collection<Vet>>(vets, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/{vetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Vet> getVet(@PathVariable("vetId") int vetId){
 		Vet vet = this.clinicService.findVetById(vetId);
@@ -69,8 +71,16 @@ public class VetRestController {
 		}
 		return new ResponseEntity<Vet>(vet, HttpStatus.OK);
 	}
-	
-	
+
+    @RequestMapping(value = "/{vetId}/pets", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Pet>> getPetsThatVisitedVet(@PathVariable("vetId") int vetId){ // Cant think of anything better for the method name
+        Collection<Pet> pets = this.clinicService.findPetsThatVisitedVetByVetId(vetId);
+        if (pets.isEmpty()){
+            return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+    }
+
 	@RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Vet> addVet(@RequestBody @Valid Vet vet, BindingResult bindingResult, UriComponentsBuilder ucBuilder){
 		BindingErrorsResponse errors = new BindingErrorsResponse();
@@ -84,7 +94,7 @@ public class VetRestController {
 		headers.setLocation(ucBuilder.path("/api/vets/{id}").buildAndExpand(vet.getId()).toUri());
 		return new ResponseEntity<Vet>(vet, headers, HttpStatus.CREATED);
 	}
-	
+
 	@RequestMapping(value = "/{vetId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Vet> updateVet(@PathVariable("vetId") int vetId, @RequestBody @Valid Vet vet, BindingResult bindingResult){
 		BindingErrorsResponse errors = new BindingErrorsResponse();
@@ -107,7 +117,7 @@ public class VetRestController {
 		this.clinicService.saveVet(currentVet);
 		return new ResponseEntity<Vet>(currentVet, HttpStatus.NO_CONTENT);
 	}
-	
+
 	@RequestMapping(value = "/{vetId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@Transactional
 	public ResponseEntity<Void> deleteVet(@PathVariable("vetId") int vetId){
@@ -118,7 +128,7 @@ public class VetRestController {
 		this.clinicService.deleteVet(vet);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
-	
-	
+
+
 
 }

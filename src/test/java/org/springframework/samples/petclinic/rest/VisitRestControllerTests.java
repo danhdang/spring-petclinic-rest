@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -92,17 +94,22 @@ public class VisitRestControllerTests {
     	petType.setId(2);
     	petType.setName("dog");
 
-    	Pet pet = new Pet();
+        Pet pet = new Pet();
     	pet.setId(8);
     	pet.setName("Rosy");
     	pet.setBirthDate(new Date());
     	pet.setOwner(owner);
     	pet.setType(petType);
 
+    	Vet vet = new Vet();
+    	vet.setId(1);
+    	vet.setFirstName("Test");
+    	vet.setLastName("Vet");
 
     	Visit visit = new Visit();
     	visit.setId(2);
     	visit.setPet(pet);
+    	visit.setVet(vet);
     	visit.setDate(new Date());
     	visit.setDescription("rabies shot");
     	visits.add(visit);
@@ -110,6 +117,7 @@ public class VisitRestControllerTests {
     	visit = new Visit();
     	visit.setId(3);
     	visit.setPet(pet);
+    	visit.setVet(vet);
     	visit.setDate(new Date());
     	visit.setDescription("neutered");
     	visits.add(visit);

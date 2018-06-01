@@ -26,6 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -35,7 +37,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.test.context.ContextConfiguration;
@@ -110,6 +116,58 @@ public class VetRestControllerTests {
     	given(this.clinicService.findVetById(-1)).willReturn(null);
         this.mockMvc.perform(get("/api/vets/-1")
         	.accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetPetsThatVisitedVetSuccess() throws Exception {
+        Owner owner = new Owner();
+        owner.setId(1);
+        owner.setFirstName("Eduardo");
+        owner.setLastName("Rodriquez");
+        owner.setAddress("2693 Commerce St.");
+        owner.setCity("McFarland");
+        owner.setTelephone("6085558763");
+
+        PetType petType = new PetType();
+        petType.setId(2);
+        petType.setName("dog");
+
+        Pet pet = new Pet();
+        pet.setId(8);
+        pet.setName("Rosy");
+        pet.setBirthDate(new Date());
+        pet.setOwner(owner);
+        pet.setType(petType);
+
+        Vet vet = new Vet();
+        vet.setId(1);
+        vet.setFirstName("Test");
+        vet.setLastName("Vet");
+
+        Visit visit = new Visit();
+        visit.setId(2);
+        visit.setPet(pet);
+        visit.setVet(vet);
+        visit.setDate(new Date());
+        visit.setDescription("rabies shot");
+
+        given(this.clinicService.findVisitsByVetId(1)).willReturn(Arrays.asList(visit));
+        given(this.clinicService.findPetsThatVisitedVetByVetId(1)).willReturn(Arrays.asList(pet));
+        this.mockMvc.perform(get("/api/vets/1/pets")
+            .accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(8))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"));
+    }
+
+    @Test
+    public void testGetPetsThatVisitedVetNotFound() throws Exception {
+        given(this.clinicService.findVisitsByVetId(-1)).willReturn(null);
+        given(this.clinicService.findPetsThatVisitedVetByVetId(-1)).willReturn(null);
+        this.mockMvc.perform(get("/api/vets/-1/pets")
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
 

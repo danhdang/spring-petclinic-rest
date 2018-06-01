@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Specialty;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -86,13 +88,39 @@ public class JacksonCustomVisitSerializer extends StdSerializer<Visit> {
 		} else {
 			jgen.writeNumberField("id", owner.getId());
 		}
+
 		jgen.writeStringField("firstName", owner.getFirstName());
 		jgen.writeStringField("lastName", owner.getLastName());
 		jgen.writeStringField("address", owner.getAddress());
 		jgen.writeStringField("city", owner.getCity());
 		jgen.writeStringField("telephone", owner.getTelephone());
-		jgen.writeEndObject(); // owner
-		jgen.writeEndObject(); // pet
+        jgen.writeEndObject(); // owner
+        jgen.writeEndObject(); // pet
+
+        Vet vet = visit.getVet();
+        jgen.writeObjectFieldStart("vet");
+        if (vet.getId() == null) {
+            jgen.writeNullField("id");
+        } else {
+            jgen.writeNumberField("id", vet.getId());
+        }
+        jgen.writeStringField("firstName", vet.getFirstName());
+        jgen.writeStringField("lastName", vet.getLastName());
+
+        // write specialties array
+        jgen.writeArrayFieldStart("specialties");
+        for (Specialty specialty : vet.getSpecialties()) {
+            jgen.writeStartObject(); // specialty
+            if (specialty.getId() == null) {
+                jgen.writeNullField("id");
+            } else {
+                jgen.writeNumberField("id", specialty.getId());
+            }
+            jgen.writeStringField("name", specialty.getName());
+            jgen.writeEndObject(); // specialty
+        }
+        jgen.writeEndArray(); // specialties
+        jgen.writeEndObject(); // vet
 		jgen.writeEndObject(); // visit
 	}
 
