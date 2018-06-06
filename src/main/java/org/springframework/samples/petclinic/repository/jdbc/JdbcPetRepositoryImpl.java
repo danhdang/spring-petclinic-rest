@@ -15,11 +15,7 @@
  */
 package org.springframework.samples.petclinic.repository.jdbc;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -126,7 +122,7 @@ public class JdbcPetRepositoryImpl implements PetRepository {
             .addValue("type_id", pet.getType().getId())
             .addValue("owner_id", pet.getOwner().getId());
     }
-    
+
 	@Override
 	public Collection<Pet> findAll() throws DataAccessException {
 		Map<String, Object> params = new HashMap<>();
@@ -152,7 +148,12 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 		return pets;
 	}
 
-	@Override
+    @Override
+    public Collection<Pet> findAllPetsWithVisits() throws DataAccessException {
+        return Collections.EMPTY_LIST;
+    }
+
+    @Override
 	public void delete(Pet pet) throws DataAccessException {
 		Map<String, Object> pet_params = new HashMap<>();
 		pet_params.put("id", pet.getId());

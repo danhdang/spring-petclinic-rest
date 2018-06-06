@@ -69,6 +69,16 @@ public class PetRestController {
 		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
 	}
 
+    @RequestMapping(value = "/visited", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Pet>> getVisitedPets(){
+	    Collection<Pet> pets = this.clinicService.findAllPetsWithVisits();
+        if(pets.isEmpty()){
+            return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+
+    }
+
 	@RequestMapping(value = "/pettypes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Collection<PetType>> getPetTypes(){
 		return new ResponseEntity<Collection<PetType>>(this.clinicService.findPetTypes(), HttpStatus.OK);
