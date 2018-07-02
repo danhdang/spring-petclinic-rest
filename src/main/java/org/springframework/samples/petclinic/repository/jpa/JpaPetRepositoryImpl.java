@@ -63,7 +63,7 @@ public class JpaPetRepositoryImpl implements PetRepository {
             this.em.merge(pet);
         }
     }
-    
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Pet> findAll() throws DataAccessException {
@@ -81,4 +81,7 @@ public class JpaPetRepositoryImpl implements PetRepository {
 		}
 	}
 
+    public Collection<Pet> findAllVisitedPets() throws DataAccessException {
+        return this.em.createQuery("SELECT p from Pet p, Visit v WHERE p.id = v.pet.id").getResultList();
+    }
 }

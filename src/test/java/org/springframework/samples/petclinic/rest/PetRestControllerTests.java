@@ -142,11 +142,33 @@ public class PetRestControllerTests {
 
     @Test
     public void testGetAllPetsNotFound() throws Exception {
-    	pets.clear();
-    	given(this.clinicService.findAllPets()).willReturn(pets);
+        pets.clear();
+        given(this.clinicService.findAllPets()).willReturn(pets);
         this.mockMvc.perform(get("/api/pets/")
-        	.accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetAllVisitedPetsNotFound() throws Exception {
+        pets.clear();
+        given(this.clinicService.findAllVisitedPets()).willReturn(pets);
+        this.mockMvc.perform(get("/api/pets/visited")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetAllVisitedPets() throws Exception {
+        given(this.clinicService.findAllVisitedPets()).willReturn(pets);
+        this.mockMvc.perform(get("/api/pets/visited")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(3))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"))
+            .andExpect(jsonPath("$.[1].id").value(4))
+            .andExpect(jsonPath("$.[1].name").value("Jewel"));
     }
 
     @Test

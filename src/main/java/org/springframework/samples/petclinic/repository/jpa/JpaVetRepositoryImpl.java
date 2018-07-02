@@ -41,7 +41,7 @@ public class JpaVetRepositoryImpl implements VetRepository {
     @PersistenceContext
     private EntityManager em;
 
-   
+
 	@Override
 	public Vet findById(int id) throws DataAccessException {
 		return this.em.find(Vet.class, id);
@@ -64,6 +64,7 @@ public class JpaVetRepositoryImpl implements VetRepository {
 
 	@Override
 	public void delete(Vet vet) throws DataAccessException {
+        this.em.createQuery("DELETE FROM Visit visit WHERE vet_id=" + vet.getId()).executeUpdate();
 		this.em.remove(this.em.contains(vet) ? vet : this.em.merge(vet));
 	}
 

@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -35,6 +36,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -128,11 +132,63 @@ public class VetRestControllerTests {
 
     @Test
     public void testGetAllVetsNotFound() throws Exception {
-    	vets.clear();
-    	given(this.clinicService.findAllVets()).willReturn(vets);
+        vets.clear();
+        given(this.clinicService.findAllVets()).willReturn(vets);
         this.mockMvc.perform(get("/api/vets/")
-        	.accept(MediaType.APPLICATION_JSON))
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetVisitedPetsNotFound() throws Exception {
+        given(this.clinicService.findVisitedPetsByVetId(-1)).willReturn(null);
+        this.mockMvc.perform(get("/-1/visitedPets")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetVisitedPetsSuccess() throws Exception {
+        List<Pet> pets = new ArrayList<Pet>();
+
+        Owner owner = new Owner();
+        owner.setId(1);
+        owner.setFirstName("Eduardo");
+        owner.setLastName("Rodriquez");
+        owner.setAddress("2693 Commerce St.");
+        owner.setCity("McFarland");
+        owner.setTelephone("6085558763");
+
+        PetType petType = new PetType();
+        petType.setId(2);
+        petType.setName("dog");
+
+        Pet pet = new Pet();
+        pet.setId(3);
+        pet.setName("Rosy");
+        pet.setBirthDate(new Date());
+        pet.setOwner(owner);
+        pet.setType(petType);
+        pets.add(pet);
+
+        pet = new Pet();
+        pet.setId(4);
+        pet.setName("Jewel");
+        pet.setBirthDate(new Date());
+        pet.setOwner(owner);
+        pet.setType(petType);
+        pets.add(pet);
+
+        given(this.clinicService.findVisitedPetsByVetId(2)).willReturn(pets);
+
+        this.mockMvc.perform(get("/api/vets/2/visitedpets")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(3))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"))
+            .andExpect(jsonPath("$.[1].id").value(4))
+            .andExpect(jsonPath("$.[1].name").value("Jewel"));
     }
 
     @Test

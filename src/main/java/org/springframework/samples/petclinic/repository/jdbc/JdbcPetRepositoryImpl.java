@@ -126,13 +126,12 @@ public class JdbcPetRepositoryImpl implements PetRepository {
             .addValue("type_id", pet.getType().getId())
             .addValue("owner_id", pet.getOwner().getId());
     }
-    
+
 	@Override
 	public Collection<Pet> findAll() throws DataAccessException {
 		Map<String, Object> params = new HashMap<>();
 		Collection<Pet> pets = new ArrayList<Pet>();
-		Collection<JdbcPet> jdbcPets = new ArrayList<JdbcPet>();
-		jdbcPets = this.namedParameterJdbcTemplate
+        Collection<JdbcPet> jdbcPets = this.namedParameterJdbcTemplate
 				.query("SELECT pets.id as pets_id, name, birth_date, type_id, owner_id FROM pets",
 				params,
 				new JdbcPetRowMapper());
@@ -152,7 +151,22 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 		return pets;
 	}
 
-	@Override
+    @Override
+    public Collection<Pet> findAllVisitedPets() throws DataAccessException {
+        Map<String, Object> params = new HashMap<>();
+        Collection<Pet> pets = new ArrayList<Pet>();
+        Collection<JdbcPet> jdbcPets = this.namedParameterJdbcTemplate
+            .query("SELECT pets.id as pets_id, name, birth_date, type_id, owner_id FROM pets " +
+                    "JOIN visits ON pets.id = visits.pet_id",
+                params,
+                new JdbcPetRowMapper());
+        for (JdbcPet jdbcPet : jdbcPets) {
+            pets.add(jdbcPet);
+        }
+        return pets;
+    }
+
+    @Override
 	public void delete(Pet pet) throws DataAccessException {
 		Map<String, Object> pet_params = new HashMap<>();
 		pet_params.put("id", pet.getId());

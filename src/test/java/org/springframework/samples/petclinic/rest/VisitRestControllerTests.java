@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,6 +40,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
@@ -99,21 +101,33 @@ public class VisitRestControllerTests {
     	pet.setOwner(owner);
     	pet.setType(petType);
 
+        Vet vet;
+
+        vet = new Vet();
+        vet.setId(1);
+        vet.setFirstName("Hassan");
+        vet.setLastName("Paknia");
 
     	Visit visit = new Visit();
     	visit.setId(2);
     	visit.setPet(pet);
+    	visit.setVet(vet);
     	visit.setDate(new Date());
     	visit.setDescription("rabies shot");
     	visits.add(visit);
 
+        vet = new Vet();
+        vet.setId(2);
+        vet.setFirstName("Parisa");
+        vet.setLastName("Majidy");
+
     	visit = new Visit();
     	visit.setId(3);
     	visit.setPet(pet);
+        visit.setVet(vet);
     	visit.setDate(new Date());
     	visit.setDescription("neutered");
     	visits.add(visit);
-
 
     }
 
