@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.repository.jpa;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.VetRepository;
 import org.springframework.stereotype.Repository;
@@ -66,6 +67,11 @@ public class JpaVetRepositoryImpl implements VetRepository {
 	public void delete(Vet vet) throws DataAccessException {
 		this.em.remove(this.em.contains(vet) ? vet : this.em.merge(vet));
 	}
+
+    @Override
+    public Collection<Pet> findAllPetsWithVisits(int vetid) throws DataAccessException {
+        return null;
+    }
 
 
 }

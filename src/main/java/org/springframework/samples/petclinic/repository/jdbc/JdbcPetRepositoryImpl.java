@@ -15,11 +15,7 @@
  */
 package org.springframework.samples.petclinic.repository.jdbc;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -165,5 +161,15 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 		}
 		this.namedParameterJdbcTemplate.update("DELETE FROM pets WHERE id=:id", pet_params);
 	}
+
+    @Override
+    public Collection<Pet> findByOwnerId(int id) throws DataAccessException {
+        return null;
+    }
+    @Override
+    public Collection<Pet> findAllPetsWithVisits() throws DataAccessException {
+        return Collections.EMPTY_LIST;
+    }
+
 
 }

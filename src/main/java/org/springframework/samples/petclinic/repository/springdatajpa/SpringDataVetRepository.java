@@ -16,9 +16,17 @@
 package org.springframework.samples.petclinic.repository.springdatajpa;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.VetRepository;
+
+import java.util.List;
 
 /**
  * Spring Data JPA specialization of the {@link VetRepository} interface
@@ -29,4 +37,8 @@ import org.springframework.samples.petclinic.repository.VetRepository;
 
 @Profile("spring-data-jpa")
 public interface SpringDataVetRepository extends VetRepository, Repository<Vet, Integer> {
-}
+
+
+    @Override
+    @Query("SELECT p FROM Pet p, Visit v WHERE p.id = v.pet.id and v.vet.id = :id")
+    List<Pet> findAllPetsWithVisits(@Param("id") int id) throws DataAccessException;}

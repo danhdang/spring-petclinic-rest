@@ -75,4 +75,23 @@ public interface PetRepository {
      */
 	void delete(Pet pet) throws DataAccessException;
 
+
+    /**
+     * Retrieves aall <code>Pet</code> from the data store by owner id.
+     *
+     * @param id the id to search for
+     * @return the <code>Pet</code> if found
+     * @throws org.springframework.dao.DataRetrievalFailureException if not found
+     */
+    Collection<Pet> findByOwnerId(int id) throws DataAccessException;
+
+
+    /**
+     * Retrieve <code>Pet</code>s from the data store where there is an associated
+     * <code>Visit</code>, returning all owners and visits
+     *
+     * @return a <code>Collection</code> of <code>Pet</code>s (or an empty <code>Collection</code> if none found)
+     * @throws DataAccessException
+     */
+    Collection<Pet> findAllPetsWithVisits() throws DataAccessException;
 }

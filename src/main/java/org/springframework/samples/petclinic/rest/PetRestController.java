@@ -51,6 +51,8 @@ public class PetRestController {
 	@Autowired
 	private ClinicService clinicService;
 
+
+
 	@RequestMapping(value = "/{petId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Pet> getPet(@PathVariable("petId") int petId){
 		Pet pet = this.clinicService.findPetById(petId);
@@ -119,6 +121,16 @@ public class PetRestController {
 		this.clinicService.deletePet(pet);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
+
+    @RequestMapping(value = "/visited", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Pet>> getVisitedPets(){
+        Collection<Pet> pets = this.clinicService.findAllPetsWithVisits();
+        if(pets.isEmpty()){
+            return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+
+    }
 
 
 }

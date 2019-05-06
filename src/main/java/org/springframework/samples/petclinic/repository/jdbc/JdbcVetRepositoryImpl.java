@@ -35,6 +35,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.orm.ObjectRetrievalFailureException;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.repository.VetRepository;
@@ -158,8 +159,13 @@ public class JdbcVetRepositoryImpl implements VetRepository {
 		this.namedParameterJdbcTemplate.update("DELETE FROM vet_specialties WHERE vet_id=:id", params);
 		this.namedParameterJdbcTemplate.update("DELETE FROM vets WHERE id=:id", params);
 	}
-	
-	private void updateVetSpecialties(Vet vet) throws DataAccessException {
+
+    @Override
+    public Collection<Pet> findAllPetsWithVisits(int vetid) throws DataAccessException {
+        return null;
+    }
+
+    private void updateVetSpecialties(Vet vet) throws DataAccessException {
 		Map<String, Object> params = new HashMap<>();
 		params.put("id", vet.getId());
 		this.namedParameterJdbcTemplate.update("DELETE FROM vet_specialties WHERE vet_id=:id", params);
