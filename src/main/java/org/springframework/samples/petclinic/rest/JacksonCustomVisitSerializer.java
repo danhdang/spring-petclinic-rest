@@ -20,10 +20,7 @@ import java.io.IOException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 
-import org.springframework.samples.petclinic.model.Owner;
-import org.springframework.samples.petclinic.model.Pet;
-import org.springframework.samples.petclinic.model.PetType;
-import org.springframework.samples.petclinic.model.Visit;
+import org.springframework.samples.petclinic.model.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -59,13 +56,27 @@ public class JacksonCustomVisitSerializer extends StdSerializer<Visit> {
 		jgen.writeStringField("date", formatter.format(visit.getDate()));
 		jgen.writeStringField("description", visit.getDescription());
 
-		Pet pet = visit.getPet();
+
+        Vet vet = visit.getVet();
+        jgen.writeObjectFieldStart("vet");
+        if (vet.getId() == null) {
+            jgen.writeNullField("id");
+        } else {
+            jgen.writeNumberField("id", vet.getId());
+        }
+        jgen.writeEndObject(); // vet
+
+        Pet pet = visit.getPet();
 		jgen.writeObjectFieldStart("pet");
 		if (pet.getId() == null) {
 			jgen.writeNullField("id");
 		} else {
 			jgen.writeNumberField("id", pet.getId());
 		}
+
+
+
+
 		jgen.writeStringField("name", pet.getName());
 		jgen.writeStringField("birthDate", formatter.format(pet.getBirthDate()));
 
