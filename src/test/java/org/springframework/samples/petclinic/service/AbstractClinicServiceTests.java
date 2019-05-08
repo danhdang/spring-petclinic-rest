@@ -475,6 +475,15 @@ public abstract class AbstractClinicServiceTests {
         assertThat(specialty).isNull();
     }
        
+    @Test
+    @Transactional
+    public void shouldFindAllOwnerPets() {
 
+    	Collection<Pet> pets = this.clinicService.findAllPetsByOwner(1);
+
+    	assertThat(pets.size()).isEqualTo(1);
+    	Pet pet1 = EntityUtils.getById(pets, Pet.class, 1);
+        assertThat(pet1.getName()).isEqualTo("Leo");
+    }
 
 }

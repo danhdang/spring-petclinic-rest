@@ -284,8 +284,20 @@ public class ClinicServiceImpl implements ClinicService {
 	public Collection<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);
 	}
-	
-	
+
+	@Override
+	@Transactional(readOnly = true)
+	public Collection<Pet> findAllPetsByOwner(int ownerId) throws DataAccessException {
+
+		Collection<Pet> pets = null;
+		try {
+			pets = petRepository.findAllByOwnerId(ownerId);
+		} catch (ObjectRetrievalFailureException|EmptyResultDataAccessException e) {
+		// just ignore not found exceptions for Jdbc/Jpa realization
+			return null;
+		}
+		return pets;
+	}
 
 
 }

@@ -166,4 +166,11 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 		this.namedParameterJdbcTemplate.update("DELETE FROM pets WHERE id=:id", pet_params);
 	}
 
+	@Override
+	public Collection<Pet> findAllByOwnerId(int ownerId) throws DataAccessException {
+
+        Owner owner = this.ownerRepository.findById(ownerId);
+        return owner.getPets();
+	}
+
 }

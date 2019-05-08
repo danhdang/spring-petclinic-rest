@@ -120,5 +120,12 @@ public class PetRestController {
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
-
+	@RequestMapping(value = "/byOwner/{ownerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Collection<Pet>> getPetsByOwner(@PathVariable("ownerId") int ownerId) {
+		Collection<Pet> pets = this.clinicService.findAllPetsByOwner(ownerId);
+		if(pets.isEmpty()) {
+			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+	}
 }

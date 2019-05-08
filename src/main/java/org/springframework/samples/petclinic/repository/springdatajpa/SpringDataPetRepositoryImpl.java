@@ -29,7 +29,7 @@ import org.springframework.samples.petclinic.model.Pet;
 
 @Profile("spring-data-jpa")
 public class SpringDataPetRepositoryImpl implements PetRepositoryOverride {
-	
+
 	@PersistenceContext
     private EntityManager em;
 
