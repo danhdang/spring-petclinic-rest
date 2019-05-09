@@ -64,7 +64,7 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
         query.setParameter("id", petId);
         return query.getResultList();
     }
-    
+
 	@Override
 	public Visit findById(int id) throws DataAccessException {
 		return this.em.find(Visit.class, id);
@@ -83,6 +83,14 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
 		if (em.contains(visit)) {
 			em.remove(visit);
 		}
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Visit> findAllByVetId(Integer vetId) {
+		Query query = this.em.createQuery("SELECT v FROM Visit v where v.vet.id= :vetId");
+        query.setParameter("vetId", vetId);
+        return query.getResultList();
 	}
 
 }

@@ -40,6 +40,7 @@ import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
@@ -98,13 +99,18 @@ public class VisitRestControllerTests {
     	pet.setBirthDate(new Date());
     	pet.setOwner(owner);
     	pet.setType(petType);
-
+    	
+    	Vet vet = new Vet();
+        vet.setId(5);
+        vet.setFirstName("John");
+        vet.setLastName("Doe");
 
     	Visit visit = new Visit();
     	visit.setId(2);
     	visit.setPet(pet);
     	visit.setDate(new Date());
     	visit.setDescription("rabies shot");
+    	visit.setVet(vet);
     	visits.add(visit);
 
     	visit = new Visit();
@@ -159,8 +165,31 @@ public class VisitRestControllerTests {
     }
 
     @Test
+    public void testGetVisitByVetSuccess() throws Exception {
+    	given(this.clinicService.findAllVisitsByVet(2)).willReturn(visits.subList(0, 1));
+        this.mockMvc.perform(get("/api/visits/byVet/2")
+        	.accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(2))
+            .andExpect(jsonPath("$.[0].description").value("rabies shot"));
+    }
+
+    @Test
     public void testCreateVisitSuccess() throws Exception {
     	Visit newVisit = visits.get(0);
+    	newVisit.setId(999);
+    	ObjectMapper mapper = new ObjectMapper();
+    	String newVisitAsJSON = mapper.writeValueAsString(newVisit);
+    	System.out.println("newVisitAsJSON " + newVisitAsJSON);
+    	this.mockMvc.perform(post("/api/visits/")
+    		.content(newVisitAsJSON).accept(MediaType.APPLICATION_JSON_VALUE).contentType(MediaType.APPLICATION_JSON_VALUE))
+    		.andExpect(status().isCreated());
+    }
+
+    @Test
+    public void testCreateVisitNoVetSuccess() throws Exception {
+    	Visit newVisit = visits.get(1);
     	newVisit.setId(999);
     	ObjectMapper mapper = new ObjectMapper();
     	String newVisitAsJSON = mapper.writeValueAsString(newVisit);

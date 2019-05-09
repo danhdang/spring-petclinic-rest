@@ -45,7 +45,9 @@ public interface VisitRepository {
     List<Visit> findByPetId(Integer petId);
     
 	Visit findById(int id) throws DataAccessException;
-	
+
+	List<Visit> findAllByVetId(Integer vetId);
+
 	Collection<Visit> findAll() throws DataAccessException;
 
 	void delete(Visit visit) throws DataAccessException;

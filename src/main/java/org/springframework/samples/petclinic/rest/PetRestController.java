@@ -128,4 +128,13 @@ public class PetRestController {
 		}
 		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
 	}
+	
+	@RequestMapping(value = "/byVet/{vetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Collection<Pet>> getPetsByVet(@PathVariable("vetId") int vetId) {
+		Collection<Pet> pets = this.clinicService.findAllPetsByVet(vetId);
+		if(pets.isEmpty()) {
+			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+	}
 }

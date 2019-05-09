@@ -226,4 +226,29 @@ public class PetRestControllerTests {
         	.andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testGetAllPetsByOwnerSuccess() throws Exception {
+    	given(this.clinicService.findAllPetsByOwner(2)).willReturn(pets);
+        this.mockMvc.perform(get("/api/pets/byOwner/2")
+        	.accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(3))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"))
+            .andExpect(jsonPath("$.[1].id").value(4))
+            .andExpect(jsonPath("$.[1].name").value("Jewel"));
+    }
+
+    @Test
+    public void testGetAllPetsByVetSuccess() throws Exception {
+    	given(this.clinicService.findAllPetsByVet(2)).willReturn(pets);
+        this.mockMvc.perform(get("/api/pets/byVet/2")
+        	.accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(3))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"))
+            .andExpect(jsonPath("$.[1].id").value(4))
+            .andExpect(jsonPath("$.[1].name").value("Jewel"));
+    }
 }

@@ -173,4 +173,20 @@ public class JdbcPetRepositoryImpl implements PetRepository {
         return owner.getPets();
 	}
 
+	@Override
+	public Collection<Pet> findAllByVetId(int vetId) throws DataAccessException {
+
+		List<Visit> visits = this.visitRepository.findAllByVetId(vetId);
+		// need a list of unique pets
+		Map<Integer, Pet> petsmap = new HashMap<>();
+		for(Visit visit : visits) {
+			Pet pet = visit.getPet();
+			if(!petsmap.containsKey(pet.getId())) {
+			    petsmap.put(pet.getId(), pet);
+			}
+		}
+
+		return petsmap.values();
+	}
+
 }

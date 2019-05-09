@@ -331,10 +331,10 @@ public abstract class AbstractClinicServiceTests {
     @Test
     @Transactional
     public void shouldDeleteVet(){
-    	Vet vet = this.clinicService.findVetById(1);
+        Vet vet = this.clinicService.findVetById(3);
         this.clinicService.deleteVet(vet);
         try {
-        	vet = this.clinicService.findVetById(1);
+            vet = this.clinicService.findVetById(3);
 		} catch (Exception e) {
 			vet = null;
 		}
@@ -484,6 +484,17 @@ public abstract class AbstractClinicServiceTests {
     	assertThat(pets.size()).isEqualTo(1);
     	Pet pet1 = EntityUtils.getById(pets, Pet.class, 1);
         assertThat(pet1.getName()).isEqualTo("Leo");
+    }
+
+    @Test
+    @Transactional
+    public void shouldFindAllPetsVisitedAVet() {
+
+        Collection<Pet> pets = this.clinicService.findAllPetsByVet(1);
+
+        assertThat(pets.size()).isEqualTo(1);
+        Pet pet1 = EntityUtils.getById(pets, Pet.class, 7);
+        assertThat(pet1.getName()).isEqualTo("Samantha");
     }
 
 }

@@ -91,4 +91,13 @@ public class JpaPetRepositoryImpl implements PetRepository {
 		return query.getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public Collection<Pet> findAllByVetId(int vetId) throws DataAccessException {
+
+		Query query = this.em.createQuery("SELECT pet FROM Pet pet WHERE EXISTS (select v from Visit v where v.pet.id = pet.id and v.vet.id = :vetId)");
+		query.setParameter("vetId", vetId);
+		return query.getResultList();
+	}
+
 }

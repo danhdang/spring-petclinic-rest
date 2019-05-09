@@ -76,6 +76,14 @@ public interface PetRepository {
 	Collection<Pet> findAllByOwnerId(int ownerId) throws DataAccessException;
 
     /**
+     * Retrieve <code>Pet</code>s from the data store treated by a vet
+     * @param vetId the <code>Vet</code> id
+     * @return a <code>Collection</code> of <code>Pet</code>s (or an empty <code>Collection</code> if none
+     * found)
+     */
+	Collection<Pet> findAllByVetId(int vetId) throws DataAccessException;
+
+    /**
      * Delete an <code>Pet</code> to the data store by <code>Pet</code>.
      *
      * @param pet the <code>Pet</code> to delete
