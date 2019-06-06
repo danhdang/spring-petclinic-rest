@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -36,12 +37,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,10 +67,15 @@ public class OwnerRestControllerTests {
 
     @MockBean
     private ClinicService clinicService;
+    
+    @MockBean
+    private Pet mockPet;
 
     private MockMvc mockMvc;
 
     private List<Owner> owners;
+    
+    private Pet testPet;
 
     @Before
     public void initOwners(){
@@ -111,7 +120,17 @@ public class OwnerRestControllerTests {
     	owner.setTelephone("6085553198");
     	owners.add(owner);
 
+    	PetType petType = new PetType();
+    	petType.setId(2);
+    	petType.setName("dog");
 
+    	Pet pet = new Pet();
+    	pet.setId(3);
+    	pet.setName("Rosy");
+    	pet.setBirthDate(new Date());
+    	pet.setOwner(owner);
+    	pet.setType(petType);
+    	testPet = pet;
     }
 
     @Test
@@ -257,5 +276,25 @@ public class OwnerRestControllerTests {
     		.content(newOwnerAsJSON).accept(MediaType.APPLICATION_JSON_VALUE).contentType(MediaType.APPLICATION_JSON_VALUE))
         	.andExpect(status().isNotFound());
     }
-
+    
+    @Test
+    public void testGetPets() throws Exception {
+    	owners.get(0).addPet(testPet);
+    	given(this.clinicService.findOwnerById(1)).willReturn(owners.get(0));
+    	this.mockMvc.perform(get("/api/owners/1/pets")
+        	.accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(3))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"));
+    }
+    
+    @Test
+    public void testGetPetsNotFound() throws Exception {
+    	given(this.clinicService.findOwnerById(1)).willReturn(owners.get(0));
+        this.mockMvc.perform(get("/api/owners/1/pets")
+        	.accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+    
 }

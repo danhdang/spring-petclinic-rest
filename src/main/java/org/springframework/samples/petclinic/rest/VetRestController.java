@@ -26,8 +26,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -119,6 +121,18 @@ public class VetRestController {
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 	
-	
+	@RequestMapping(value = "/{vetId}/pets", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Collection<Pet>>  getPets(@PathVariable("vetId") int vetId){
+		Collection<Visit> visits = this.clinicService.findVisitsByVetId(vetId);
+		if(visits.isEmpty()){
+			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+		}
+		Collection<Pet> pets = new ArrayList<Pet>();
+		for (Visit visit: visits) {
+			pets.add(visit.getPet());
+		}
+		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+		
+	}
 
 }

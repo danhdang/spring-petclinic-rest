@@ -70,6 +70,13 @@ public class Visit extends BaseEntity {
 
 
     /**
+     * Holds value of property vet.
+     */
+    @ManyToOne
+    @JoinColumn(name = "vet_id")
+    private Vet vet;
+
+	/**
      * Creates a new instance of Visit for the current date
      */
     public Visit() {
@@ -131,4 +138,18 @@ public class Visit extends BaseEntity {
         this.pet = pet;
     }
 
+	/**
+	 * @return the vet
+	 */
+	public Vet getVet() {
+		return vet;
+	}
+
+
+	/**
+	 * @param vet the vet to set
+	 */
+	public void setVet(Vet vet) {
+		this.vet = vet;
+	}
 }

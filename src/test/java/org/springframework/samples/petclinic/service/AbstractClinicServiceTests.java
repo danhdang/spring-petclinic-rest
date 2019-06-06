@@ -123,6 +123,12 @@ public abstract class AbstractClinicServiceTests {
         assertThat(pet7.getOwner().getFirstName()).isEqualTo("Jean");
 
     }
+    
+    @Test
+    public void shouldFindVisitsByVetId() {
+		Collection<Visit> vet = this.clinicService.findVisitsByVetId(2);
+		assertThat(vet.size()).isEqualTo(2);
+    }
 
 //    @Test
 //    public void shouldFindAllPetTypes() {
@@ -186,9 +192,11 @@ public abstract class AbstractClinicServiceTests {
     @Transactional
     public void shouldAddNewVisitForPet() {
         Pet pet7 = this.clinicService.findPetById(7);
+        Vet vet = this.clinicService.findVetById(2);
         int found = pet7.getVisits().size();
         Visit visit = new Visit();
         pet7.addVisit(visit);
+        visit.setVet(vet);
         visit.setDescription("test");
         this.clinicService.saveVisit(visit);
         this.clinicService.savePet(pet7);
@@ -253,11 +261,13 @@ public abstract class AbstractClinicServiceTests {
         int found = visits.size();
         
         Pet pet = this.clinicService.findPetById(1);
+        Vet vet = this.clinicService.findVetById(1);
 
         Visit visit = new Visit();
         visit.setPet(pet);
         visit.setDate(new Date());
         visit.setDescription("new visit");
+        visit.setVet(vet);
         
                 
         this.clinicService.saveVisit(visit);

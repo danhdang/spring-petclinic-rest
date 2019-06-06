@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -130,4 +131,21 @@ public class OwnerRestController {
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
+	/**
+	 * Given the owner ID returns a collection of pets
+	 * @param ownerId
+	 * @return a list of pets of the owner
+	 */
+	@RequestMapping(value = "/{ownerId}/pets", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Collection<Pet>> getPets(@PathVariable("ownerId") int ownerId){
+		Owner owner = this.clinicService.findOwnerById(ownerId);
+		if(owner == null){
+			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+		}
+		Collection<Pet> pets = owner.getPets();
+		if(pets.isEmpty()){
+			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+	}
 }

@@ -180,4 +180,10 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 		}
 	}
 
+	@Override
+	public List<Visit> findByVetId(Integer vetId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

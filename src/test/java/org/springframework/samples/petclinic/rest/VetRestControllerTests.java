@@ -26,6 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -35,13 +37,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,6 +73,8 @@ public class VetRestControllerTests {
     private MockMvc mockMvc;
 
     private List<Vet> vets;
+    
+    private Collection<Visit> visits = new ArrayList<Visit>();
 
     @Before
     public void initVets(){
@@ -92,6 +101,34 @@ public class VetRestControllerTests {
     	vet.setFirstName("Linda");
     	vet.setLastName("Douglas");
     	vets.add(vet);
+    	
+    	Owner owner = new Owner();
+    	owner.setId(1);
+    	owner.setFirstName("George");
+    	owner.setLastName("Franklin");
+    	owner.setAddress("110 W. Liberty St.");
+    	owner.setCity("Madison");
+    	owner.setTelephone("6085551023");
+    	
+    	
+    	PetType petType = new PetType();
+    	petType.setId(2);
+    	petType.setName("dog");
+    	
+     	Pet pet = new Pet();
+    	pet.setId(3);
+    	pet.setName("Rosy");
+    	pet.setBirthDate(new Date());
+    	pet.setType(petType);
+    	pet.setOwner(owner);
+    	
+    	Visit visitSlug = new Visit();
+    	visitSlug.setId(2);
+    	visitSlug.setDate(new Date());
+    	visitSlug.setDescription("rabies shot");
+    	visitSlug.setVet(vet);
+    	visitSlug.setPet(pet);
+    	visits.add(visitSlug);
     }
 
     @Test
@@ -210,6 +247,26 @@ public class VetRestControllerTests {
     	this.mockMvc.perform(delete("/api/vets/-1")
     		.content(newVetAsJSON).accept(MediaType.APPLICATION_JSON_VALUE).contentType(MediaType.APPLICATION_JSON_VALUE))
         	.andExpect(status().isNotFound());
+    }
+    
+    @Test
+    public void testGetPets() throws Exception {
+    	given(this.clinicService.findVisitsByVetId(1)).willReturn(visits);
+    	this.mockMvc.perform(get("/api/vets/1/pets")
+        	.accept(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(3))
+            .andExpect(jsonPath("$.[0].name").value("Rosy"));
+    }
+    
+    @Test
+    public void testGetPetsNotFound() throws Exception {
+    	visits.clear();
+    	given(this.clinicService.findVisitsByVetId(1)).willReturn(visits);
+        this.mockMvc.perform(get("/api/vets/1/pets")
+        	.accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
     }
 
 }
