@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
@@ -127,7 +128,7 @@ public class VetRestController {
 		if(visits.isEmpty()){
 			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
 		}
-		Collection<Pet> pets = new ArrayList<Pet>();
+		Collection<Pet> pets = new HashSet<Pet>();
 		for (Visit visit: visits) {
 			pets.add(visit.getPet());
 		}
