@@ -258,4 +258,22 @@ public class OwnerRestControllerTests {
         	.andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testGetPetsSuccess() throws Exception{
+        given(this.clinicService.findOwnerById(1).getPets().size()).willReturn(0);
+        this.mockMvc.perform(get("/api/owners/1/pets")
+            .accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(content().json("[]"));
+    }
+
+    @Test
+    public void testGetPetsNotFound() throws Exception {
+        given(this.clinicService.findOwnerById(-1)).willReturn(null);
+        this.mockMvc.perform(get("/api/owners/-1")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
 }

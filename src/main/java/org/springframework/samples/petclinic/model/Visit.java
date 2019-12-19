@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.model;
 
+import java.util.Collection;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -68,6 +69,12 @@ public class Visit extends BaseEntity {
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
+    /**
+     * Holds value of property vet.
+     */
+    @ManyToOne
+    @JoinColumn(name = "vet_id")
+    private Vet vet;
 
     /**
      * Creates a new instance of Visit for the current date
@@ -129,6 +136,24 @@ public class Visit extends BaseEntity {
      */
     public void setPet(Pet pet) {
         this.pet = pet;
+    }
+
+    /**
+     * Getter for property vet.
+     *
+     * @return Value of property vet.
+     */
+    public Vet getVet() {
+        return this.vet;
+    }
+
+    /**
+     * Setter for property vet.
+     *
+     * @param vet New value of property vet.
+     */
+    public void setVet(Vet vet) {
+        this.vet = vet;
     }
 
 }
