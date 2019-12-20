@@ -81,4 +81,16 @@ public class JpaPetRepositoryImpl implements PetRepository {
 		}
 	}
 
+	@Override
+	public Collection<Pet> findAllPetsByOwnerId(int ownerId) {
+		// TODO implement the method
+		return null;
+	}
+
+	@Override
+	public Collection<Pet> findPetsByVetId(int vetId) {
+		// TODO implement the method
+		return null;
+	}
+
 }
