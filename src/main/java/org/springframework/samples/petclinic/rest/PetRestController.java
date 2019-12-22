@@ -60,7 +60,7 @@ public class PetRestController {
 		return new ResponseEntity<Pet>(pet, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "{/ownerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/owner/{ownerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Collection<Pet>> getPetsByOwnerId(@PathVariable("ownerId") int ownerId) {
 		Collection<Pet> pets = this.clinicService.findAllPetsByOwnerId(ownerId);
 		if (pets.isEmpty()) {
@@ -68,16 +68,7 @@ public class PetRestController {
 		}
 		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
 	}
-	
-	@RequestMapping(value = "{/vetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	public ResponseEntity<Collection<Pet>> getPetsByVetId(@PathVariable("vetId") int vetId) {
-		Collection<Pet> pets = this.clinicService.findAllPetsByOwnerId(vetId);
-		if (pets.isEmpty()) {
-			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
-		}
-		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
-	}
-
+		
 	@RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Collection<Pet>> getPets(){
 		Collection<Pet> pets = this.clinicService.findAllPets();

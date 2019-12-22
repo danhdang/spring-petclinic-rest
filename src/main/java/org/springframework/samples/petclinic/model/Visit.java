@@ -69,9 +69,9 @@ public class Visit extends BaseEntity {
     private Pet pet;
     
     /**
-     * holds value of vet
+     * holds value of vetId
      */
-    @ManyToOne
+    @ManyToOne(targetEntity = Vet.class)
     @JoinColumn(name = "vet_id")
     private Vet vet;
 
@@ -146,7 +146,6 @@ public class Visit extends BaseEntity {
 	public Vet getVet() {
 		return vet;
 	}
-
 
 	/**
 	 * setter for property vet

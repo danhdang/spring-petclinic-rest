@@ -76,19 +76,20 @@ public class ClinicServiceImpl implements ClinicService {
 	public Collection<Pet> findAllPets() throws DataAccessException {
 		return petRepository.findAll();
 	}
-	
+		
 	@Override
 	@Transactional(readOnly = true)
-	public Collection<Pet> findAllPetsByOwnerId(int ownerId){
-		return petRepository.findAllPetsByOwnerId(ownerId);
+	public Collection<Pet> findAllPetsByOwnerId(int ownerId) throws DataAccessException {
+		Collection<Pet> pets = null;
+		try {
+			pets = petRepository.findAllPetsByOwnerId(ownerId);
+			//pets = petRepository.findAll();
+		} catch (ObjectRetrievalFailureException | EmptyResultDataAccessException e) {
+			// just ignore not found exceptions for Jdbc/Jpa realization
+			return null;
+		}
+		return pets;
 	}
-	
-	@Override
-	@Transactional(readOnly = true)
-	public Collection<Pet> findPetsByVetId(int vetId){
-		return petRepository.findPetsByVetId(vetId);
-	}
-	
 
 	@Override
 	@Transactional
@@ -298,6 +299,12 @@ public class ClinicServiceImpl implements ClinicService {
 		return visitRepository.findByPetId(petId);
 	}
 	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public Collection<Visit> findVisitsByVetId(int vetId) {
+		return visitRepository.findByVetId(vetId);
+	}
 	
 
 

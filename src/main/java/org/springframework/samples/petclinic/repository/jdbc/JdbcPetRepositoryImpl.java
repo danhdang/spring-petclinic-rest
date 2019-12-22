@@ -157,29 +157,26 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 		Collection<JdbcPet> jdbcPets = new ArrayList<JdbcPet>();
 		Map<String, Object> params = new HashMap<>();
 		params.put("ownerId", ownerId);
+		
 		jdbcPets = this.namedParameterJdbcTemplate.query(
-				"select id, name, birth_date,type_id FROM pets WHERE owner_id=:ownerid", params,
+				"SELECT id as pets_id, name, birth_date, type_id, owner_id FROM pets WHERE owner_id=:ownerId", params,
 				new JdbcPetRowMapper());
-		for (JdbcPet jdbcpet : jdbcPets) {
-			pets.add(jdbcpet);
-		}
-		return pets;
-	}
+		
+		Collection<PetType> petTypes = this.namedParameterJdbcTemplate.query("SELECT id, name FROM types ORDER BY name",
+				new HashMap<String, Object>(), BeanPropertyRowMapper.newInstance(PetType.class));
 
-	public Collection<Pet> findPetsByVetId(int vetId) {
-		Collection<Pet> pets = new ArrayList<Pet>();
-		Collection<JdbcPet> jdbcPets = new ArrayList<JdbcPet>();
-		Map<String, Object> params = new HashMap<>();
-		params.put("vetId", vetId);
-		jdbcPets = this.namedParameterJdbcTemplate.query(
-				"select id, name, birth_date,type_id FROM pets INNER JOIN visits ON pets.id = visits.pet_id AND visits.vet_id=:vetId GROUP BY visits.vet_id",
-				params, new JdbcPetRowMapper());
-		for (JdbcPet jdbcpet : jdbcPets) {
-			pets.add(jdbcpet);
+		Collection<Owner> owners = this.namedParameterJdbcTemplate.query(
+				"SELECT id, first_name, last_name, address, city, telephone FROM owners WHERE id=:ownerId ", params,
+				BeanPropertyRowMapper.newInstance(Owner.class));
+
+		for (JdbcPet jdbcPet : jdbcPets) {
+			jdbcPet.setType(EntityUtils.getById(petTypes, PetType.class, jdbcPet.getTypeId()));
+			jdbcPet.setOwner(EntityUtils.getById(owners, Owner.class, jdbcPet.getOwnerId()));
+			pets.add(jdbcPet);
 		}
 		return pets;
 	}
-	
+		
 
 	@Override
 	public void delete(Pet pet) throws DataAccessException {

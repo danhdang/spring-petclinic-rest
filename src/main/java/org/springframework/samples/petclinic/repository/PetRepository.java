@@ -74,15 +74,7 @@ public interface PetRepository {
 	 *         <code>Collection</code> if none found)
 	 */
 	Collection<Pet> findAllPetsByOwnerId(int ownerId);
-
-	/**
-	 * Retrieve <code>Pet</code>s from the data store by vet they have visited
-	 *
-	 * @return a <code>Collection</code> of <code>Pet</code>s (or an empty
-	 *         <code>Collection</code> if none found)
-	 */
-	Collection<Pet> findPetsByVetId(int vetId);
-	
+		
     /**
      * Delete an <code>Pet</code> to the data store by <code>Pet</code>.
      *
