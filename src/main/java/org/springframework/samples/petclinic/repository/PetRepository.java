@@ -66,7 +66,15 @@ public interface PetRepository {
      * found)
      */
 	Collection<Pet> findAll() throws DataAccessException;
-
+	
+	/**
+	 * Retrieve <code>Pet</code>s from the data store by owner
+	 *
+	 * @return a <code>Collection</code> of <code>Pet</code>s (or an empty
+	 *         <code>Collection</code> if none found)
+	 */
+	Collection<Pet> findAllPetsByOwnerId(int ownerId);
+		
     /**
      * Delete an <code>Pet</code> to the data store by <code>Pet</code>.
      *

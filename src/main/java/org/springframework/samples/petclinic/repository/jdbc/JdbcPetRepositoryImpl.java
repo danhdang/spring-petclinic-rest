@@ -151,6 +151,32 @@ public class JdbcPetRepositoryImpl implements PetRepository {
 		}
 		return pets;
 	}
+	
+	public Collection<Pet> findAllPetsByOwnerId(int ownerId) {
+		Collection<Pet> pets = new ArrayList<Pet>();
+		Collection<JdbcPet> jdbcPets = new ArrayList<JdbcPet>();
+		Map<String, Object> params = new HashMap<>();
+		params.put("ownerId", ownerId);
+		
+		jdbcPets = this.namedParameterJdbcTemplate.query(
+				"SELECT id as pets_id, name, birth_date, type_id, owner_id FROM pets WHERE owner_id=:ownerId", params,
+				new JdbcPetRowMapper());
+		
+		Collection<PetType> petTypes = this.namedParameterJdbcTemplate.query("SELECT id, name FROM types ORDER BY name",
+				new HashMap<String, Object>(), BeanPropertyRowMapper.newInstance(PetType.class));
+
+		Collection<Owner> owners = this.namedParameterJdbcTemplate.query(
+				"SELECT id, first_name, last_name, address, city, telephone FROM owners WHERE id=:ownerId ", params,
+				BeanPropertyRowMapper.newInstance(Owner.class));
+
+		for (JdbcPet jdbcPet : jdbcPets) {
+			jdbcPet.setType(EntityUtils.getById(petTypes, PetType.class, jdbcPet.getTypeId()));
+			jdbcPet.setOwner(EntityUtils.getById(owners, Owner.class, jdbcPet.getOwnerId()));
+			pets.add(jdbcPet);
+		}
+		return pets;
+	}
+		
 
 	@Override
 	public void delete(Pet pet) throws DataAccessException {

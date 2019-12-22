@@ -70,6 +70,15 @@ public class VisitRestController {
 		return new ResponseEntity<Visit>(visit, HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/vet/{vetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	public ResponseEntity<Collection<Visit>> getVisitByVet(@PathVariable("vetId") int vetId) {
+		Collection<Visit> visits = this.clinicService.findVisitsByVetId(vetId);
+		if (visits.isEmpty()) {
+			return new ResponseEntity<Collection<Visit>>(HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<Collection<Visit>>(visits, HttpStatus.OK);
+	}
+	
 	
 	@RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Visit> addVisit(@RequestBody @Valid Visit visit, BindingResult bindingResult, UriComponentsBuilder ucBuilder){
@@ -101,6 +110,7 @@ public class VisitRestController {
 		currentVisit.setDate(visit.getDate());
 		currentVisit.setDescription(visit.getDescription());
 		currentVisit.setPet(visit.getPet());
+		currentVisit.setVet(visit.getVet());
 		this.clinicService.saveVisit(currentVisit);
 		return new ResponseEntity<Visit>(currentVisit, HttpStatus.NO_CONTENT);
 	}

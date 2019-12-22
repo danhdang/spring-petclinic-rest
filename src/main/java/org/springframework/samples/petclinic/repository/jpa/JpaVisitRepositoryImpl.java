@@ -85,4 +85,12 @@ public class JpaVisitRepositoryImpl implements VisitRepository {
 		}
 	}
 
+
+	@Override
+	public List<Visit> findByVetId(Integer vetId) {
+		// TODO Auto-generated method stub
+		// this needs to be implemented
+		return null;
+	}
+
 }

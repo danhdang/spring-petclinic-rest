@@ -27,7 +27,9 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.PetType;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.Visit;
+import org.springframework.samples.petclinic.repository.VetRepository;
 import org.springframework.samples.petclinic.repository.VisitRepository;
 import org.springframework.stereotype.Repository;
 
@@ -60,11 +62,10 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     protected SimpleJdbcInsert insertVisit;
-
+        
     @Autowired
     public JdbcVisitRepositoryImpl(DataSource dataSource) {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-
         this.insertVisit = new SimpleJdbcInsert(dataSource)
             .withTableName("visits")
             .usingGeneratedKeyColumns("id");
@@ -79,7 +80,8 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
             .addValue("id", visit.getId())
             .addValue("visit_date", visit.getDate())
             .addValue("description", visit.getDescription())
-            .addValue("pet_id", visit.getPet().getId());
+            .addValue("pet_id", visit.getPet().getId())
+            .addValue("vet_id", visit.getVet().getId());
     }
 
     @Override
@@ -101,6 +103,17 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 
         return visits;
     }
+    
+    
+	@Override
+	public List<Visit> findByVetId(Integer vetId) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("vetId", vetId);
+		List<Visit> visits = this.namedParameterJdbcTemplate.query(
+				"SELECT id as visit_id, visits.pet_id as pets_id, visit_date, description, vet_id FROM visits WHERE vet_id= :vetId",
+				params, new JdbcVisitRowMapperExt());
+		return visits;
+	}
     
 	@Override
 	public Visit findById(int id) throws DataAccessException {
@@ -133,7 +146,7 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 			visit.setId(newKey.intValue());
 		} else {
 			this.namedParameterJdbcTemplate.update(
-					"UPDATE visits SET visit_date=:visit_date, description=:description, pet_id=:pet_id WHERE id=:id ",
+					"UPDATE visits SET visit_date=:visit_date, description=:description, pet_id=:pet_id, vet_id=:vet_id WHERE id=:id ",
 					createVisitParameterSource(visit));
 		}
 	}
@@ -153,10 +166,12 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 			JdbcPet pet = new JdbcPet();
 			PetType petType = new PetType();
 			Owner owner = new Owner();
+			Vet vet = new Vet();
 			visit.setId(rs.getInt("visit_id"));
 			Date visitDate = rs.getDate("visit_date");
 			visit.setDate(new Date(visitDate.getTime()));
 			visit.setDescription(rs.getString("description"));
+			
 			Map<String, Object> params = new HashMap<>();
 			params.put("id", rs.getInt("pets_id"));
 			pet = JdbcVisitRepositoryImpl.this.namedParameterJdbcTemplate.queryForObject(
@@ -174,8 +189,16 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 					"SELECT id, first_name, last_name, address, city, telephone FROM owners WHERE id= :owner_id",
 					params,
 					BeanPropertyRowMapper.newInstance(Owner.class));
+			
+			params.put("vetId", rs.getInt("vet_id"));
+			vet = JdbcVisitRepositoryImpl.this.namedParameterJdbcTemplate.queryForObject(
+					"SELECT id, first_name, last_name FROM vets WHERE id= :vetId",
+					params,
+					BeanPropertyRowMapper.newInstance(Vet.class));
+						
 			pet.setOwner(owner);
 			visit.setPet(pet);
+			visit.setVet(vet);
 			return visit;
 		}
 	}

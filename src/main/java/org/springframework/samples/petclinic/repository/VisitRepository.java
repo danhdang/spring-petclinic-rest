@@ -44,6 +44,14 @@ public interface VisitRepository {
 
     List<Visit> findByPetId(Integer petId);
     
+    /**
+	 * Retrieve <code>Visit</code>s containing pet details from the data store by vet
+	 *
+	 * @return a <code>List</code> of <code>Visit</code>s (or an empty
+	 *         <code>Collection</code> if none found)
+	 */
+    List<Visit> findByVetId(Integer vetId);
+    
 	Visit findById(int id) throws DataAccessException;
 	
 	Collection<Visit> findAll() throws DataAccessException;
