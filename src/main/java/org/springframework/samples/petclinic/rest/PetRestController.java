@@ -60,6 +60,11 @@ public class PetRestController {
 		return new ResponseEntity<Pet>(pet, HttpStatus.OK);
 	}
 	
+	/**
+	 * use this end point to get all pets by owner
+	 * @param ownerId 
+	 * @return collection of pets belonging to the input owner
+	 */
 	@RequestMapping(value = "/owner/{ownerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Collection<Pet>> getPetsByOwnerId(@PathVariable("ownerId") int ownerId) {
 		Collection<Pet> pets = this.clinicService.findAllPetsByOwnerId(ownerId);
