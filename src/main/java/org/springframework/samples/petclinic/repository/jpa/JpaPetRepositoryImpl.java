@@ -56,6 +56,16 @@ public class JpaPetRepositoryImpl implements PetRepository {
     }
 
     @Override
+    public Collection<Pet> findByOwnerId(int ownerId) throws DataAccessException {
+        return this.em.createQuery("SELECT pet FROM Pet pet WHERE owner_id=" + ownerId).getResultList();
+    }
+
+    @Override
+    public Collection<Pet> findAllWithVisits() throws DataAccessException {
+        return this.em.createQuery("SELECT DISTINCT pet FROM Pet pet, Visit visit WHERE pet.id = visit.pet.id").getResultList();
+    }
+
+    @Override
     public void save(Pet pet) {
         if (pet.getId() == null) {
             this.em.persist(pet);

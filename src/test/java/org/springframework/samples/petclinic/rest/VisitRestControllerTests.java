@@ -39,6 +39,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Vet;
 import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
@@ -99,17 +100,28 @@ public class VisitRestControllerTests {
     	pet.setOwner(owner);
     	pet.setType(petType);
 
+    	Vet vet = new Vet();
+    	vet.setId(4);
+    	vet.setFirstName("Rafael");
+    	vet.setLastName("Ortega");
 
     	Visit visit = new Visit();
     	visit.setId(2);
     	visit.setPet(pet);
+    	visit.setVet(vet);
     	visit.setDate(new Date());
     	visit.setDescription("rabies shot");
     	visits.add(visit);
 
+    	vet = new Vet();
+    	vet.setId(3);
+    	vet.setFirstName("Linda");
+    	vet.setLastName("Douglas");
+
     	visit = new Visit();
     	visit.setId(3);
     	visit.setPet(pet);
+    	visit.setVet(vet);
     	visit.setDate(new Date());
     	visit.setDescription("neutered");
     	visits.add(visit);
@@ -155,6 +167,26 @@ public class VisitRestControllerTests {
     	given(this.clinicService.findAllVisits()).willReturn(visits);
         this.mockMvc.perform(get("/api/visits/")
         	.accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetVisitsByVetIdSuccess() throws Exception {
+        given(this.clinicService.findVisitsByVetId(4)).willReturn(visits);
+        this.mockMvc.perform(get("/api/visits/vet/4")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json;charset=UTF-8"))
+            .andExpect(jsonPath("$.[0].id").value(2))
+            .andExpect(jsonPath("$.[0].description").value("rabies shot"));
+    }
+
+    @Test
+    public void testGetVisitsByVetIdNotFound() throws Exception {
+        visits.clear();
+        given(this.clinicService.findVisitsByVetId(1)).willReturn(visits);
+        this.mockMvc.perform(get("/api/visits/vet/1")
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
 

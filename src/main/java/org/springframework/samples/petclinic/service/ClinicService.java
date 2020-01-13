@@ -38,8 +38,11 @@ public interface ClinicService {
 	Collection<Pet> findAllPets() throws DataAccessException;
 	void savePet(Pet pet) throws DataAccessException;
 	void deletePet(Pet pet) throws DataAccessException;
+	Collection<Pet> findPetsByOwnerId(int ownerId) throws DataAccessException;
+	Collection<Pet> findPetsWithVisits() throws DataAccessException;
 
 	Collection<Visit> findVisitsByPetId(int petId);
+	Collection<Visit> findVisitsByVetId(int vetId);
 	Visit findVisitById(int visitId) throws DataAccessException;
 	Collection<Visit> findAllVisits() throws DataAccessException;
 	void saveVisit(Visit visit) throws DataAccessException;
