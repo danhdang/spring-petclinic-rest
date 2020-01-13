@@ -16,8 +16,11 @@
 package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.dto.PetDto;
+import org.springframework.samples.petclinic.dto.PetVisitDto;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
@@ -67,5 +70,15 @@ public interface ClinicService {
 	Collection<Specialty> findAllSpecialties() throws DataAccessException;
 	void saveSpecialty(Specialty specialty) throws DataAccessException;
 	void deleteSpecialty(Specialty specialty) throws DataAccessException;
+	
+	/*
+	 *  find all pets of an owner
+	 */
+	List<PetDto> findPetsByOwner(String ownerId);
+	
+	/*
+	 *  find all pets visted to a vet.
+	 */
+	List<PetVisitDto> findPetVisitsByVetId(String vetId);
 
 }

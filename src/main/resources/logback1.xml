@@ -9,7 +9,8 @@
     
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%-5level %logger{0} - %msg%n</pattern>
+            <!--<pattern>%-5level %logger{0} - %msg%n</pattern> -->
+            <pattern>[%X{X-B3-TraceId},%X{X-B3-SpanId},%X{X-B3-ParentSpanId},%X{X-Span-Export}]</pattern>
         </encoder>
     </appender>
 

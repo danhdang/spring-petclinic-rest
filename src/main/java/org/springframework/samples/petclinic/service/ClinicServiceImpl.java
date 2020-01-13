@@ -16,12 +16,22 @@
 package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.orm.ObjectRetrievalFailureException;
+import org.springframework.samples.petclinic.dto.PetDto;
+import org.springframework.samples.petclinic.dto.PetVisitDto;
+import org.springframework.samples.petclinic.exception.RequestDataValidationException;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
@@ -34,6 +44,7 @@ import org.springframework.samples.petclinic.repository.PetTypeRepository;
 import org.springframework.samples.petclinic.repository.SpecialtyRepository;
 import org.springframework.samples.petclinic.repository.VetRepository;
 import org.springframework.samples.petclinic.repository.VisitRepository;
+import org.springframework.samples.petclinic.util.PetClinicUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +66,14 @@ public class ClinicServiceImpl implements ClinicService {
     private SpecialtyRepository specialtyRepository;
 	private PetTypeRepository petTypeRepository;
 
-    @Autowired
+	@Autowired
+	private Environment environment;
+	@Autowired
+	private Tracer tracer;
+	
+	private static Logger logger = LoggerFactory.getLogger(ClinicServiceImpl.class);
+    
+	@Autowired
      public ClinicServiceImpl(
        		 PetRepository petRepository,
     		 VetRepository vetRepository,
@@ -284,8 +302,49 @@ public class ClinicServiceImpl implements ClinicService {
 	public Collection<Visit> findVisitsByPetId(int petId) {
 		return visitRepository.findByPetId(petId);
 	}
-	
-	
 
 
+	
+	/*
+	 *  All pets of an owner.
+	 *  Spring data JPA implementation.
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<PetDto> findPetsByOwner(String ownerId) 
+	{
+		logger.info(" Validate Owner Id ");
+		
+		// Validate 'ownerId' is numeric
+		// Throw Exception if owner Id is invalid.
+		if(! validateId(ownerId)) {
+			String traceId = Span.idToHex(this.tracer.getCurrentSpan().getTraceId());
+			throw new RequestDataValidationException(traceId,environment.getProperty("error.ownerId.invalid.error.code"),
+					environment.getProperty("error.ownerId.invalid.error.message"));
+		}
+			
+		Owner owner = this.ownerRepository.findById(NumberUtils.toInt(ownerId));
+		List<PetDto> pets = PetClinicUtil.convertToDto(owner.getPets());
+		
+		return pets;
+	}
+	
+	@Override
+	public List<PetVisitDto> findPetVisitsByVetId(String vetId) {
+		// Validate 'vetId' is numeric
+		// Throw Exception if vet Id is invalid.
+		if(! validateId(vetId)) {
+			String traceId = Span.idToHex(this.tracer.getCurrentSpan().getTraceId());
+			throw new RequestDataValidationException(traceId,environment.getProperty("error.vetId.invalid.error.code"),
+					environment.getProperty("error.vetId.invalid.error.message"));
+		}
+
+		Vet vet = vetRepository.findById(NumberUtils.toInt(vetId));
+		List<PetVisitDto> pets = PetClinicUtil.convertToDto(vet);
+		return pets;
+	}
+
+	private boolean validateId(String id) {
+		return NumberUtils.isDigits(id);
+	}
 }
