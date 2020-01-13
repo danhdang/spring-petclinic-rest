@@ -19,6 +19,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -68,7 +69,10 @@ public class Visit extends BaseEntity {
     @JoinColumn(name = "pet_id")
     private Pet pet;
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vet_id")
+    private Vet vet;
+        
     /**
      * Creates a new instance of Visit for the current date
      */
@@ -130,5 +134,17 @@ public class Visit extends BaseEntity {
     public void setPet(Pet pet) {
         this.pet = pet;
     }
+
+
+	public Vet getVet() {
+		return vet;
+	}
+
+
+	public void setVet(Vet vet) {
+		this.vet = vet;
+	}
+    
+    
 
 }

@@ -16,16 +16,23 @@
 
 package org.springframework.samples.petclinic.rest;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -35,13 +42,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.samples.petclinic.dto.PetDto;
+import org.springframework.samples.petclinic.exception.RequestDataValidationException;
 import org.springframework.samples.petclinic.model.Owner;
+import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.PetType;
 import org.springframework.samples.petclinic.service.ApplicationTestConfig;
 import org.springframework.samples.petclinic.service.ClinicService;
+import org.springframework.samples.petclinic.util.PetClinicUtil;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -68,6 +81,8 @@ public class OwnerRestControllerTests {
 
     private List<Owner> owners;
 
+    private List<Pet> pets;
+    
     @Before
     public void initOwners(){
     	this.mockMvc = MockMvcBuilders.standaloneSetup(ownerRestController)
@@ -112,8 +127,109 @@ public class OwnerRestControllerTests {
     	owners.add(owner);
 
 
+    	pets = new ArrayList<Pet>();
+		PetType petType = new PetType();
+		petType.setId(2);
+		petType.setName("dog");
+
+		Date petDob = PetClinicUtil.stringToDate("2010-01-02");
+		
+		Pet pet = new Pet();
+		pet.setId(3);
+		pet.setName("Rosy");
+		pet.setBirthDate(petDob);
+		pet.setType(petType);
+		
+		pets.add(pet);
     }
 
+    
+	//@Test
+	public void testfindPetsByOwnerSucess() throws Exception 
+	{
+		List<PetDto> results = PetClinicUtil.convertToDto(pets);
+
+		given(this.clinicService.findPetsByOwner("1")).willReturn(results);
+
+		ResultActions apiResponse = this.mockMvc.perform(get("/api/owners/1/pets")
+				.accept(MediaType.APPLICATION_JSON_VALUE));
+
+		//Print the response
+		apiResponse.andDo(print());
+
+		//Verify the response headers data
+		apiResponse.andExpect(status().isOk())
+		.andExpect(content().contentType("application/json;charset=UTF-8"));
+
+		//Verify the response body.
+		apiResponse.andExpect(jsonPath("$", hasSize(1)));
+		apiResponse.andExpect(jsonPath("$[0].id").doesNotExist());
+		apiResponse.andExpect(jsonPath("$[0].name").value("Rosy"));
+		apiResponse.andExpect(jsonPath("$[0].birthDate").value("2010-01-02"));
+		apiResponse.andExpect(jsonPath("$[0].type").value("dog"));
+
+		verify(this.clinicService, times(1)).findPetsByOwner(anyString());
+		verifyNoMoreInteractions(this.clinicService);
+	}
+
+	@Test
+	public void testfindPetsByOwnerForException() throws Exception 
+	{
+		String INVALID_OWNER_ID = "abc";
+		String URI = "/api/owners/" +INVALID_OWNER_ID +"/pets";
+		Exception requestDataValidationException = 
+				new RequestDataValidationException("e2f11e972813e947","ERROR_OWNER_ID_INVALID", "Invalid Owner Id.");
+		
+		given(this.clinicService.findPetsByOwner(INVALID_OWNER_ID)).willThrow(requestDataValidationException);
+
+		ResultActions apiResponse = this.mockMvc.perform(get(URI)
+				.accept(MediaType.APPLICATION_JSON_VALUE));
+
+		//Print the response
+		apiResponse.andDo(print());
+
+		//Verify the response headers data
+		apiResponse.andExpect(status().isBadRequest())
+		.andExpect(content().contentType("application/json;charset=UTF-8"));
+
+		//Verify the response body.
+		apiResponse.andExpect(jsonPath("traceId").exists());
+		apiResponse.andExpect(jsonPath("traceId").value("e2f11e972813e947"));
+		apiResponse.andExpect(jsonPath("errorCode").value("ERROR_OWNER_ID_INVALID"));
+		apiResponse.andExpect(jsonPath("errorMessage").value("Invalid Owner Id."));
+
+		verify(this.clinicService, times(1)).findPetsByOwner(anyString());
+		verifyNoMoreInteractions(this.clinicService);
+		
+		
+		/**
+		 * Owner Id value is empty with some spaces
+		 */
+		INVALID_OWNER_ID = "  ";
+		URI = "/api/owners/" +INVALID_OWNER_ID +"/pets";
+		
+		given(this.clinicService.findPetsByOwner(INVALID_OWNER_ID)).willThrow(requestDataValidationException);
+
+		apiResponse = this.mockMvc.perform(get(URI)
+				.accept(MediaType.APPLICATION_JSON_VALUE));
+
+		//Print the response
+		apiResponse.andDo(print());
+
+		//Verify the response headers data
+		apiResponse.andExpect(status().isBadRequest())
+		.andExpect(content().contentType("application/json;charset=UTF-8"));
+
+		//Verify the response body.
+		apiResponse.andExpect(jsonPath("traceId").exists());
+		apiResponse.andExpect(jsonPath("traceId").value("e2f11e972813e947"));
+		apiResponse.andExpect(jsonPath("errorCode").value("ERROR_OWNER_ID_INVALID"));
+		apiResponse.andExpect(jsonPath("errorMessage").value("Invalid Owner Id."));
+
+		verify(this.clinicService, times(2)).findPetsByOwner(anyString());
+		verifyNoMoreInteractions(this.clinicService);
+	}
+	
     @Test
     public void testGetOwnerSuccess() throws Exception {
     	given(this.clinicService.findOwnerById(1)).willReturn(owners.get(0));

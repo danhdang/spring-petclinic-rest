@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+    
+    <entry key="QUERY_FIND_PETS_BY_OWNER_ID">
+		
+    </entry> 
+	<entry key="QUERY_FIND_PETS_VISITS_BY_VET_ID">
+		SELECT p.*,t.*,vs.*,ow.*
+		FROM vets v INNER JOIN visits vs ON vs.vet_id = v.id
+			INNER JOIN pets p ON p.id = vs.pet_id
+			INNER JOIN owners ow ON p.owner_id = ow.id
+			INNER JOIN types t ON p.type_id = t.id 
+		AND v.id = ?
+    </entry> 
+</properties>

@@ -185,11 +185,14 @@ public abstract class AbstractClinicServiceTests {
     @Test
     @Transactional
     public void shouldAddNewVisitForPet() {
+    	Vet vet = this.clinicService.findVetById(1);
+    	
         Pet pet7 = this.clinicService.findPetById(7);
         int found = pet7.getVisits().size();
         Visit visit = new Visit();
         pet7.addVisit(visit);
         visit.setDescription("test");
+        visit.setVet(vet);
         this.clinicService.saveVisit(visit);
         this.clinicService.savePet(pet7);
 
@@ -201,7 +204,7 @@ public abstract class AbstractClinicServiceTests {
     @Test
        public void shouldFindVisitsByPetId() throws Exception {
         Collection<Visit> visits = this.clinicService.findVisitsByPetId(7);
-        assertThat(visits.size()).isEqualTo(2);
+        assertThat(visits.size()).isEqualTo(3);
         Visit[] visitArr = visits.toArray(new Visit[visits.size()]);
         assertThat(visitArr[0].getPet()).isNotNull();
         assertThat(visitArr[0].getDate()).isNotNull();
@@ -253,8 +256,10 @@ public abstract class AbstractClinicServiceTests {
         int found = visits.size();
         
         Pet pet = this.clinicService.findPetById(1);
+        Vet vet = this.clinicService.findVetById(1);
 
         Visit visit = new Visit();
+        visit.setVet(vet);
         visit.setPet(pet);
         visit.setDate(new Date());
         visit.setDescription("new visit");
