@@ -71,6 +71,16 @@ public class VisitRestController {
 	}
 	
 	
+	@RequestMapping(value = "/vet/{vetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Visit>> getVisitByVetId(@PathVariable("vetId") int vetId){
+	    Collection<Visit> visits = new ArrayList<>();
+	    visits.addAll(this.clinicService.findVisitsByVetId(vetId));
+        if(visits.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(visits, HttpStatus.OK);
+    }
+
 	@RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Visit> addVisit(@RequestBody @Valid Visit visit, BindingResult bindingResult, UriComponentsBuilder ucBuilder){
 		BindingErrorsResponse errors = new BindingErrorsResponse();

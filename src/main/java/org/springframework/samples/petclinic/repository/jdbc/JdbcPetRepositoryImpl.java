@@ -102,6 +102,63 @@ public class JdbcPetRepositoryImpl implements PetRepository {
     }
 
     @Override
+    public Collection<Pet> findByOwnerId(int ownerId) throws DataAccessException {
+        Map<String, Object> params = new HashMap<>();
+        Collection<JdbcPet> jdbcPets;
+        params.put("owner_id", ownerId);
+        jdbcPets = this.namedParameterJdbcTemplate.query(
+            "SELECT pets.id as pets_id, name, birth_date, type_id, owner_id FROM pets WHERE owner_id=:owner_id",
+                params,
+                new JdbcPetRowMapper());
+        Collection<PetType> petTypes = this.namedParameterJdbcTemplate.query(
+            "SELECT id, name FROM types ORDER BY name",
+            params,
+            BeanPropertyRowMapper.newInstance(PetType.class));
+        Collection<Owner> owners = this.namedParameterJdbcTemplate.query(
+            "SELECT id, first_name, last_name, address, city, telephone FROM owners WHERE id=:owner_id",
+            params,
+            BeanPropertyRowMapper.newInstance(Owner.class));
+        return getPets(jdbcPets, petTypes, owners);
+    }
+
+    @Override
+    public Collection<Pet> findAllWithVisits() throws DataAccessException {
+        Map<String, Object> params = new HashMap<>();
+        Collection<JdbcPet> jdbcPets;
+        jdbcPets = this.namedParameterJdbcTemplate.query(
+            "SELECT DISTINCT pets.id as pets_id, pets.name, pets.birth_date, pets.type_id, pets.owner_id FROM pets, visits WHERE pets.id = visits.pet_id",
+            params,
+            new JdbcPetRowMapper());
+        Collection<PetType> petTypes = this.namedParameterJdbcTemplate.query(
+            "SELECT id, name FROM types ORDER BY name",
+            params,
+            BeanPropertyRowMapper.newInstance(PetType.class));
+        Collection<Owner> owners = this.namedParameterJdbcTemplate.query(
+            "SELECT id, first_name, last_name, address, city, telephone FROM owners",
+            params,
+            BeanPropertyRowMapper.newInstance(Owner.class));
+        return getPets(jdbcPets, petTypes, owners);
+    }
+
+    private Collection<Pet> getPets(Collection<JdbcPet> jdbcPets, Collection<PetType> petTypes, Collection<Owner> owners) {
+		Collection<Pet> pets = new ArrayList<>();
+        Collection<Visit> visits;
+        Map<String, Object> params = new HashMap<>();
+        for (JdbcPet jdbcPet : jdbcPets) {
+            jdbcPet.setType(EntityUtils.getById(petTypes, PetType.class, jdbcPet.getTypeId()));
+            jdbcPet.setOwner(EntityUtils.getById(owners, Owner.class, jdbcPet.getOwnerId()));
+            params.put("pet_id", jdbcPet.getId());
+            visits = this.namedParameterJdbcTemplate.query(
+                "SELECT id as visit_id, pet_id as pets_id, vet_id as vets_id, visit_date, description FROM visits WHERE pet_id=:pet_id",
+                params,
+                new JdbcVisitRowMapperExt(namedParameterJdbcTemplate));
+            jdbcPet.setVisits(visits);
+            pets.add(jdbcPet);
+        }
+        return pets;
+    }
+
+    @Override
     public void save(Pet pet) throws DataAccessException {
         if (pet.isNew()) {
             Number newKey = this.insertPet.executeAndReturnKey(

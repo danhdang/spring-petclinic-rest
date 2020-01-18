@@ -85,6 +85,26 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public Collection<Pet> findPetsByOwnerId(int ownerId) throws DataAccessException {
+		Collection<Pet> petType;
+		try {
+			petType = petRepository.findByOwnerId(ownerId);
+		} catch (ObjectRetrievalFailureException|EmptyResultDataAccessException e) {
+			// just ignore not found exceptions for Jdbc/Jpa realization
+			return null;
+		}
+
+		return petType;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Collection<Pet> findPetsWithVisits() throws DataAccessException {
+		return petRepository.findAllWithVisits();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public Visit findVisitById(int visitId) throws DataAccessException {
 		Visit visit = null;
 		try {
@@ -286,6 +306,12 @@ public class ClinicServiceImpl implements ClinicService {
 	}
 	
 	
+    @Override
+    @Transactional(readOnly = true)
+    public Collection<Visit> findVisitsByVetId(int vetId) {
+        return visitRepository.findByVetId(vetId);
+    }
+
 
 
 }

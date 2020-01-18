@@ -187,9 +187,11 @@ public abstract class AbstractClinicServiceTests {
     public void shouldAddNewVisitForPet() {
         Pet pet7 = this.clinicService.findPetById(7);
         int found = pet7.getVisits().size();
+        Vet vet1 = this.clinicService.findVetById(1);
         Visit visit = new Visit();
         pet7.addVisit(visit);
         visit.setDescription("test");
+        visit.setVet(vet1);
         this.clinicService.saveVisit(visit);
         this.clinicService.savePet(pet7);
 
@@ -254,8 +256,11 @@ public abstract class AbstractClinicServiceTests {
         
         Pet pet = this.clinicService.findPetById(1);
 
+        Vet vet = this.clinicService.findVetById(1);
+        
         Visit visit = new Visit();
         visit.setPet(pet);
+        visit.setVet(vet);
         visit.setDate(new Date());
         visit.setDescription("new visit");
         
