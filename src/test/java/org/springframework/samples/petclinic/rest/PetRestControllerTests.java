@@ -147,7 +147,7 @@ public class PetRestControllerTests {
     @Test
     public void testGetPetsByOwnerIdNotFound() throws Exception {
         given(this.clinicService.findPetsByOwnerId(2)).willReturn(null);
-        this.mockMvc.perform(get("/api/pets/2")
+        this.mockMvc.perform(get("/api/pets/owner/2")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }

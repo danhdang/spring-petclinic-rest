@@ -72,7 +72,7 @@ public class PetRestController {
     @RequestMapping(value = "/owner/{ownerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Collection<Pet>> getPetsByOwnerId(@PathVariable("ownerId") int ownerId){
         Collection<Pet> pets = this.clinicService.findPetsByOwnerId(ownerId);
-        if(pets.isEmpty()){
+        if(pets == null || pets.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(pets, HttpStatus.OK);
@@ -81,7 +81,7 @@ public class PetRestController {
     @RequestMapping(value = "/has-visits", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Collection<Pet>> getPetsWithVisits(){
         Collection<Pet> pets = this.clinicService.findPetsWithVisits();
-        if(pets.isEmpty()){
+        if(pets == null || pets.isEmpty()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(pets, HttpStatus.OK);
