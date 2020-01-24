@@ -16,6 +16,7 @@
 package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Collection;
 import java.util.Date;
@@ -232,6 +233,14 @@ public abstract class AbstractClinicServiceTests {
         assertThat(pet2.getOwner().getId()).isEqualTo(6);
         assertThat(pet2.getOwner().getFirstName()).isEqualTo("Jean");
     }
+
+    @Test
+    public void shouldNotFindAllPetsByOwnerId() {
+        Collection<Pet> pets = this.clinicService.findPetsByOwnerId(999);
+        assertNotNull(pets);
+        assertThat(pets.isEmpty());
+    }
+
     @Test
     public void shouldFindAllPetsByVetId() {
         Collection<Pet> pets = this.clinicService.findPetsByVetId(1);
@@ -239,9 +248,18 @@ public abstract class AbstractClinicServiceTests {
         assertThat(pet1.getName()).isEqualTo("Samantha");
         assertThat(pet1.getOwner().getId()).isEqualTo(6);
     }
+
+    @Test
+    public void shouldNotFindAllPetsByVetId() {
+        Collection<Pet> pets = this.clinicService.findPetsByVetId(999);
+        assertNotNull(pets);
+        assertThat(pets.isEmpty());
+    }
+
     @Test
     public void shouldFindAllPetsWithVisits() {
         Collection<Pet> pets = this.clinicService.findAllPetsWithVisits();
+        assertNotNull(pets);
         assertThat(pets.size()).isEqualTo(2);
         Pet pet1 = EntityUtils.getById(pets,  Pet.class, 7);
         assertThat(pet1.getName()).isEqualTo("Samantha");
