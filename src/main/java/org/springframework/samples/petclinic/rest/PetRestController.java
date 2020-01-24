@@ -63,11 +63,38 @@ public class PetRestController {
 	@RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Collection<Pet>> getPets(){
 		Collection<Pet> pets = this.clinicService.findAllPets();
-		if(pets.isEmpty()){
+		if(pets == null || pets.isEmpty()){
 			return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
 	}
+
+    @RequestMapping(value = "/owner/{ownerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Pet>> getPetsByOwnerId(@PathVariable("ownerId") int ownerId) {
+        Collection<Pet> pets = this.clinicService.findPetsByOwnerId(ownerId);
+        if(pets == null || pets.isEmpty()){
+            return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/vet/{vetId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Pet>> getPetsByVetId(@PathVariable("vetId") int vetId) {
+        Collection<Pet> pets = this.clinicService.findPetsByVetId(vetId);
+        if(pets == null || pets.isEmpty()){
+            return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/with-visits", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Collection<Pet>> getAllPetsWithVisits() {
+        Collection<Pet> pets = this.clinicService.findAllPetsWithVisits();
+        if(pets == null || pets.isEmpty()){
+            return new ResponseEntity<Collection<Pet>>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Collection<Pet>>(pets, HttpStatus.OK);
+    }
 
 	@RequestMapping(value = "/pettypes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<Collection<PetType>> getPetTypes(){

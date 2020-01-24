@@ -52,6 +52,35 @@ public interface PetRepository {
     Pet findById(int id) throws DataAccessException;
 
     /**
+     * Retrieve <code>Pet</code>s from the data store by ownerId.
+     *
+     * @param id
+     * @return a <code>Collection</code> of <code>Pet</code>s (or an empty <code>Collection</code> if none
+     * found)
+     * @throws DataAccessException
+     */
+    Collection<Pet> findByOwnerId(int id) throws DataAccessException;
+
+    /**
+     * Retrieve <code>Pet</code>s from the data store by vetId.
+     *
+     * @param id
+     * @return a <code>Collection</code> of <code>Pet</code>s (or an empty <code>Collection</code> if none
+     * found)
+     * @throws DataAccessException
+     */
+    Collection<Pet> findByVetId(int id) throws DataAccessException;
+
+    /**
+     * Retrieve <code>Pet</code>s from the data store that have visited a vet.
+     *
+     * @return a <code>Collection</code> of <code>Pet</code>s (or an empty <code>Collection</code> if none
+     * found)
+     * @throws DataAccessException
+     */
+    Collection<Pet> findAllPetsWithVisits() throws DataAccessException;
+
+    /**
      * Save a <code>Pet</code> to the data store, either inserting or updating it.
      *
      * @param pet the <code>Pet</code> to save
