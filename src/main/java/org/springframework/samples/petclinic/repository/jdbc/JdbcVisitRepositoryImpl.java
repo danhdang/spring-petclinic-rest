@@ -88,17 +88,24 @@ public class JdbcVisitRepositoryImpl implements VisitRepository {
 
     @Override
     public List<Visit> findByPetId(Integer petId) {
+        if (petId == null) {
+            return new ArrayList<Visit>();
+        }
         Map<String, Object> params = new HashMap<>();
         params.put("id", petId);
-        JdbcPet pet = this.namedParameterJdbcTemplate.queryForObject(
-                "SELECT id as pets_id, name, birth_date, type_id, owner_id FROM pets WHERE id=:id",
-                params,
-                new JdbcPetRowMapper());
-
-        List<Visit> visits = this.namedParameterJdbcTemplate.query(
-                "SELECT id as visit_id, visit_date, visits.pet_id as pets_id, vet_id, description FROM visits WHERE pet_id=:id",
-                params, new JdbcVisitRowMapperExt());
-
+        JdbcPet pet;
+        List<Visit> visits = new ArrayList<Visit>();
+        try {
+             pet = this.namedParameterJdbcTemplate.queryForObject(
+                    "SELECT id as pets_id, name, birth_date, type_id, owner_id FROM pets WHERE id=:id",
+                    params,
+                    new JdbcPetRowMapper());
+             visits = this.namedParameterJdbcTemplate.query(
+                     "SELECT id as visit_id, visit_date, visits.pet_id as pets_id, vet_id, description FROM visits WHERE pet_id=:id",
+                     params, new JdbcVisitRowMapperExt());
+        } catch (EmptyResultDataAccessException ex) {
+            throw new ObjectRetrievalFailureException(Visit.class, petId);
+        }
         for (Visit visit: visits) {
             visit.setPet(pet);
         }
