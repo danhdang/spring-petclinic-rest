@@ -56,6 +56,24 @@ public class JpaPetRepositoryImpl implements PetRepository {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public Collection<Pet> findByOwnerId(int ownerId) throws DataAccessException {
+        return this.em.createQuery("SELECT pet FROM Pet pet WHERE owner_id=" + ownerId).getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<Pet> findByVetId(int vetId) throws DataAccessException {
+        return this.em.createQuery("SELECT pet FROM Pet pet, Visit visit WHERE visit.pet.id=pet.id AND visit.vet.id=" + vetId).getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<Pet> findAllPetsWithVisits() throws DataAccessException {
+        return this.em.createQuery("SELECT DISTINCT pet FROM Pet pet, Visit visit WHERE pet.id = visit.pet.id").getResultList();
+    }
+
+    @Override
     public void save(Pet pet) {
         if (pet.getId() == null) {
             this.em.persist(pet);
@@ -63,7 +81,7 @@ public class JpaPetRepositoryImpl implements PetRepository {
             this.em.merge(pet);
         }
     }
-    
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<Pet> findAll() throws DataAccessException {

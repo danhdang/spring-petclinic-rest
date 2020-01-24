@@ -15,7 +15,11 @@
  */
 package org.springframework.samples.petclinic.repository.jdbc;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.springframework.samples.petclinic.model.Pet;
+import org.springframework.samples.petclinic.model.Visit;
 
 /**
  * Subclass of Pet that carries temporary id properties which are only relevant for a JDBC implementation of the
@@ -43,6 +47,10 @@ public class JdbcPet extends Pet {
 
     public void setOwnerId(int ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public void setVisits(Collection<Visit> visits) {
+        setVisitsInternal(new HashSet<>(visits));
     }
 
 }
